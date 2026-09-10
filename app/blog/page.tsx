@@ -68,8 +68,19 @@ export default function BlogPage() {
       </ul>
 
       <p className="mt-8 text-[0.85rem] text-muted">
-        These are sample entries. Point each post’s <code className="font-mono text-accent">href</code> at a real
-        article in <code className="font-mono text-accent">lib/content.ts</code>, or remove Blog from the navigation.
+        Write-ups of these projects are in progress. In the meantime the code is
+        on{" "}
+        <a
+          href="https://github.com/BakulBd"
+          target="_blank"
+          rel="noopener noreferrer"
+          // inline-block + padding so the tap target clears 24px; as a bare
+          // inline link its box was only the 20px line height
+          className="inline-block py-1 text-accent underline hover:opacity-80"
+        >
+          GitHub
+        </a>
+        .
       </p>
       </Card>
     </>

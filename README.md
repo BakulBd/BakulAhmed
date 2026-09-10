@@ -96,18 +96,63 @@ redeploy and is per-instance, and it reads `x-forwarded-for`, so a self-hosted d
 needs a reverse proxy that sets it — otherwise every visitor shares one bucket. Put a
 real limiter in front if it ever matters.
 
+## Checks
+
+- `npm run contrast` — no browser needed. Palette discipline, 408 contrast
+  checks over 4 moods x 4 seasons, particle visibility, and 224 sky-geometry
+  checks that keep the sun and moon inside the one strip of sky they own.
+- `npm run visual` — needs a dev server. Real layout and real pixels: the
+  celestial body across 9 viewports x 4 moods, 13 widths x 5 routes for
+  overflow and touch targets, image loading, and idle frame rate on a desktop
+  and a 6x-throttled phone. The two agree independently — both put the tightest
+  celestial clearance at dusk, 768px, 4px.
+
 ## Moods (the background)
 
 The background is **one scene, re-lit four ways**: `dawn`, `day`, `dusk`, `night`.
+
+### The palette is bespoke, not borrowed
+
+Accents are built in **oklch** at a shared lightness/chroma band, varying only hue, so
+the four moods read as one family. Hues are chosen *away* from the clusters every CSS
+framework ships — sky-blue 190–210, indigo 235–250, orange 25–35 — because an earlier
+version of this palette was, measurably, 13 of 24 stock Tailwind values, including
+`cyan-400 → indigo-400`, the most-used gradient on the web.
+
+| mood | accent | accent-2 | hue arc |
+| --- | --- | --- | --- |
+| dawn | lilac 294° | celadon 172° | 122° |
+| day | citron 105° | apricot 42° | 63° |
+| dusk | terracotta 46° | plum 340° | 66° |
+| night | glacier mint 180° | periwinkle 291° | 111° |
+
+The family is held to measured tolerances, not taste: **lightness spread 0.10**,
+**chroma spread 0.032**, every pair separated by **45–130°**, and every accent carrying
+**7–9× the chroma of body text** — which is what makes an accent read as emphasis
+rather than as differently-coloured text.
+
+Accent gradients interpolate **`in oklch`**. In sRGB they route through a desaturated
+midpoint: dawn's rule measured a **46% chroma loss** halfway across. Sampled from
+rendered pixels afterwards, the loss is **−5% to +3%** — none.
+
+`npm run contrast` enforces all of it, including a check that no colour is a stock
+framework value. That check caught two survivors (cyan-400 and indigo-400) hiding in
+`@property` fallbacks after the palette was replaced.
+
+Skies are generated in the same way and sit on each mood's own hue family, so the
+background and the accents are one system rather than accents bolted onto a backdrop.
+Every accent clears **AAA** on the panel surface, and tests assert the four accent hues
+stay at least 15° apart — and that dawn's horizon (rose, 332°) never drifts back
+towards dusk's (orange, 18°), which is how the two collapsed into each other once.
 
 The four are deliberately **different characters**, not four tints of one:
 
 | | sky | horizon | band | accent | extras |
 | --- | --- | --- | --- | --- | --- |
-| **dawn** | indigo, L12% | rose 327° | **tight 46%** | violet 255° | thin cool cloud, stars fading |
-| **day** | azure, L50% | gold 43° | 90% | gold 48° | white cloud banks |
-| **dusk** | violet → maroon | orange 18° | **broad 96%** | orange 27° | warm haze, lit windows, first fireflies |
-| **night** | near-black, L3% | deep blue | 70% | cyan 188° | fireflies, full stars, clear sky |
+| **dawn** | violet 250°, L13% | rose 332° | **tight 46%** | lilac 295° | thin cool cloud, stars fading |
+| **day** | azure 201°, L50% | gold 48° | 90% | citron 110° | white cloud banks |
+| **dusk** | plum → maroon 302→359° | orange 18° | **broad 96%** | terracotta 48° | warm haze, lit windows, first fireflies |
+| **night** | near-black 217°, L4% | deep blue 222° | 70% | glacier mint 178° | fireflies, full stars, clear sky |
 
 Dawn and dusk are opposites on purpose — cool and crisp with a thin rose band against
 warm and hazy with a broad orange one. A test asserts their accents and horizons stay
@@ -123,9 +168,16 @@ warmth collects at the horizon**.
 | --- | --- |
 | `data-mood` on `<html>` | The scene — sky, clouds, sun/moon, horizon glow, window lights, stars, accent pair, shadow tint |
 | `data-theme` on `<html>` | The surfaces. One value today (`dark`); kept as its own axis so a light mood could be added without re-plumbing. |
+| `data-season` on `<html>` | The time of *year* — a tint over the sky, how hazy the air is, and what falls through it |
 
 - **Default** comes from the visitor's local clock (`lib/mood.ts`), then their choice
   is remembered.
+- **The season is not a control.** It follows the visitor's date (`seasonForMonth`),
+  set before first paint by the same blocking script as the mood, so the site changes
+  quietly through the year while the mood switch stays the one thing to press. It
+  never touches accents, so the palette family and its contrast guarantees hold on
+  every day of the year.
+
 - **Scene layers** (`components/scene.tsx`): sky gradient → sun/moon → horizon glow →
   two drifting cloud banks → two skyline ridges → lit windows → grain. All CSS/SVG
   masks, no image payload, parallaxed on scroll.
@@ -133,6 +185,50 @@ warmth collects at the horizon**.
   so the page still runs one `requestAnimationFrame`. They wander by nudging their
   heading rather than their position, so paths curve like an insect's, and each blinks
   on its own phase. Full at night, a third at dusk, none by day.
+- **Seasons ride the same canvas.** Snow, leaves, petals and rising summer heat are a
+  *third* system in that one loop — still one `requestAnimationFrame`, still one canvas,
+  no extra DOM layer. Each particle holds an evenly-spread threshold and joins once
+  `--fall` passes it, so a season change thickens the air over the transition instead
+  of popping particles into existence. Leaves and petals are ellipses that turn and
+  sway wide; snow drifts straight; summer inverts the fall so heat rises off the
+  rooftops.
+- **Each season carries two colours, and the mood picks between them.** A particle is
+  only visible by contrast against the sky, and the pale palette that reads beautifully
+  at night measured **1.2–1.4 against the bright day sky — invisible**. So every season
+  has a light variant and a deep one of the same hue, and `--fall-shade` (per mood)
+  mixes between them **in oklch**: mixing toward a neutral ink instead turned spring's
+  pink into grey mush. `npm run contrast` gates this — it fails if any of the sixteen
+  mood×season pairs drops below 1.5 against its own sky.
+- **Dawn and midnight used to look identical**, for two compounding reasons.
+  The accents were the same two hues swapped — dawn's accent sat **3deg** from
+  night's accent-2, and dawn's accent-2 **8deg** from night's accent — and the
+  gate only ever compared primary against primary, so it never saw it. Worse,
+  the headline used `linear-gradient(in oklch **longer hue** ...)`, and that
+  keyword forces interpolation the long way round the hue wheel: the gradient
+  swept every hue on the circle regardless of which two colours it was handed,
+  so all four moods rendered the same rainbow. The hues were re-placed by
+  search rather than by eye (minimum cross-mood separation **41deg**, lightness
+  spread 0.079, chroma spread 0.020), the headline now takes the short path,
+  and `npm run contrast` gates both — every accent against every other mood's,
+  and any reappearance of `longer hue`.
+- **The moon is a moon, not a pale sun.** A sun is a light source and reads
+  correctly as a soft disc; a moon is a lit sphere of rock, and without maria, a
+  terminator and limb darkening it just looks like a small white ball. A `--moon`
+  token (0 by day, 1 at night) raises soft-edged, low-contrast maria and pulls
+  the disc's falloff in so the limb goes crisp — a moon's edge is sharp, a sun's
+  bleeds. It is drawn on a pseudo-element, so it costs no extra node, and at
+  `--moon: 0` it is fully transparent and the sun below is untouched.
+- **The sun and moon have exactly one strip of sky to live in** — above the
+  panels, between the wordmark and the mood switcher — and getting that wrong
+  caused three separate bugs, all now gated in `npm run contrast`:
+  the body was placed as a share of the viewport **height** while the panels sat
+  at a fixed offset, so it sank behind them on any display taller than ~760px,
+  worsening with height; it was placed as a share of viewport **width** while the
+  wordmark moves with the shell, so at some widths it parked behind
+  "Bakul Ahmed." and washed the text out; and the clearances ignored the body's
+  own radius, leaving it 2px under the switcher at 768px. It is now anchored to
+  the same container as the chrome, with bounds that subtract its own radius, and
+  it shrinks twice on the way down to 320px where only 43px of bar is free.
 - **Warmth lives at the horizon**, not the sky: a peach glow at dawn, amber at dusk,
   deep blue at night. Each mood also sets `--shadow-tint`, so panels cast a warm
   shadow at dusk and a cold one at night.
@@ -163,6 +259,19 @@ warmth collects at the horizon**.
 
 ## Performance
 
+**A mood change used to run at 14fps.** Idle was a clean 61fps, but every mood
+transition sat at p50 72ms for its full 2.6s. Leave-one-out across the whole
+transition list found a single cause: `--cloud-color`. Both cloud layers are
+inset past the viewport (≈1.7× its width) and compositor-promoted for their
+drift, so interpolating a colour *inside* their gradient stops re-rasterised
+that oversized layer on every frame. Opacity does not. Changing it to `steps(6)`
+— a handful of value changes instead of 150, under a layer that is fading anyway
+— took it to **p50 26–34ms with the per-mood cloud colours unchanged**. Stepping
+the sky gradient too was tried and rejected: the gain was small and inconsistent,
+and banding a large smooth gradient is a poor trade. What remains is spread
+across several full-viewport gradient repaints, below this machine's ~10ms
+measurement noise.
+
 The scene is elaborate but must not cost frames. Two findings from profiling, both
 counter-intuitive enough to be worth writing down:
 
@@ -172,6 +281,12 @@ counter-intuitive enough to be worth writing down:
 - **`filter: blur()` on full-viewport cloud layers cost 19 FPS**, because a filtered
   layer that size re-rasterises constantly. Soft edges now come from the gradient
   falloff, with `will-change: transform` so the drift is composited.
+- **The sun was a full-viewport gradient with an animated centre.** Every frame of a
+  mood change repainted the whole screen — which is what made it look like it was
+  flickering. It is now a compact positioned element (348px, not 1280px).
+- **Cross-fading two complete scene sets was tried and reverted.** It sounds right —
+  opacity is composited — but it rasterises twice the gradient area and measured
+  *worse* (median frame 39–43ms against 23ms). Kept as a single interpolated set.
 - **Rotating a conic-gradient ring is paint-driven, not composited.** Four always-on
   panel rings cost 9 FPS for motion nobody looks at, so panels hold a still gradient
   edge and only the card under the pointer animates.
@@ -296,6 +411,27 @@ rather than more gutter.
   and project frames actually request.
 - Every route is statically prerendered except `/api/contact`.
 
+## Mobile
+
+Handled explicitly rather than left to the responsive breakpoints:
+
+- **Safe areas.** `viewport-fit=cover` plus `env(safe-area-inset-*)` on the fixed nav,
+  the shell's inline padding and its bottom padding — without these the bar sits under
+  the iPhone home indicator and content clips behind a landscape notch.
+- **The nav scrim belongs to the nav.** As a document-level sibling it sat in a higher
+  stacking context and painted *over* the bar, and it was built from `--sky-b`, the
+  brightest sky colour — so on a day sky it washed the labels out instead of scrimming
+  them. It is now the nav's own pseudo-element, derived from the panel colour so it
+  always darkens. A test samples the rendered pixels behind the labels in both a bright
+  and a dark sky and asserts at least 4.5:1.
+- **Touch feedback.** No hover on touch, so pressable things scale slightly on
+  `:active`, and the tap-highlight flash is suppressed.
+- **`overscroll-behavior-y: none`** so a rubber-band pull does not reveal the page behind.
+- **Browser chrome follows the sky** — `theme-color` is kept in step with the current
+  mood, so a phone's status bar matches the page.
+- Landscape phones, small landscape and short viewports are checked alongside the
+  portrait widths.
+
 ## Structural audit
 
 The codebase is checked by script rather than by eye, since a design that changed this
@@ -304,6 +440,8 @@ often accumulates quiet debt. What the sweep covers, and what it caught:
 | Check | Found |
 | --- | --- |
 | CSS classes defined but never used in markup | 4 rules left by a deleted component |
+| Unlayered CSS overriding Tailwind utilities | `.shine{position:relative}` silently beat `lg:sticky`, so the identity rail never stuck |
+| Unused imports and locals (`tsc --noUnusedLocals`) | one stale import |
 | Duplicate property declarations in one rule | `display` twice in `.swiper__seg` |
 | CSS variables referenced but never defined | none (inline-set ones carry fallbacks) |
 | `getComputedStyle` inside a rAF loop | forced a style recalc every frame |

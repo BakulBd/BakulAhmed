@@ -38,11 +38,11 @@ export const profile = {
   location: "Dhaka, Bangladesh",
   cv: "/Bakul_Ahmed_CV.pdf",
   /**
-   * Real photographs for the animated portrait, newest first. While this is
-   * empty the sidebar renders generated animated scenes instead — drop square
-   * images into /public/photos and list them here to switch over.
+   * Portraits for the sidebar frame, in the order they are shown. Both are
+   * square, which is what the frame expects — it is aspect-square, so
+   * object-cover fits them edge to edge with no crop.
    */
-  photos: [] as string[],
+  photos: ["/pp/bakul1.jpeg", "/pp/bakul2.jpg"] as string[],
 } as const;
 
 export const contactDetails = [
@@ -54,7 +54,7 @@ export const contactDetails = [
 
 export const socials = [
   { label: "GitHub", href: "https://github.com/BakulBd", icon: "github" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/bakulbd", icon: "linkedin" }, // VERIFY handle
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/cyberbokul", icon: "linkedin" },
   { label: "Codeforces", href: "https://codeforces.com/profile/BakulBd", icon: "codeforces" }, // VERIFY handle
   { label: "Email", href: "mailto:that.bakul@gmail.com", icon: "mail" },
 ] as const;
@@ -300,6 +300,7 @@ export const projects: Project[] = [
     image: "/work/green-guardian.svg",
     imageAlt: "Abstract preview: a proctoring and analytics dashboard with detection overlays.",
     repo: "https://github.com/BakulBd/GreenGuardian",
+    demo: "https://green.bakul.app",
   },
 ];
 

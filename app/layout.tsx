@@ -54,13 +54,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#dce7f2" },
-    { media: "(prefers-color-scheme: dark)", color: "#08090f" },
-  ],
-  colorScheme: "dark light",
+  // Every mood is dark, so one value; MoodProvider keeps it in step with the
+  // current sky so the browser chrome matches the page.
+  themeColor: "#030810",
+  colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
+  // Required for env(safe-area-inset-*) to report anything on notched phones.
+  viewportFit: "cover",
 };
 
 const personSchema = {
@@ -144,9 +145,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             Skip to content
           </a>
 
-          <span aria-hidden="true" className="dock-fade" />
 
-          <div className="shell relative z-10 pb-24 pt-5 md:pb-10 md:pt-6">
+          <div className="shell relative z-10 pt-5 pb-[calc(6rem+env(safe-area-inset-bottom,0px))] md:pt-6 md:pb-10">
             <div className="mb-4 flex items-center justify-between gap-4 md:mb-6">
               <a
                 href="/"

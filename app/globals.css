@@ -8,18 +8,26 @@
  * used to snap. Registering each one with its real type lets the browser
  * animate it, and every gradient built from them recomputes each frame.
  * ------------------------------------------------------------------ */
-@property --sky-a { syntax: "<color>"; inherits: true; initial-value: #08090f; }
-@property --sky-b { syntax: "<color>"; inherits: true; initial-value: #11131f; }
+@property --sky-a { syntax: "<color>"; inherits: true; initial-value: #030810; }
+@property --sky-b { syntax: "<color>"; inherits: true; initial-value: #101926; }
 @property --glow { syntax: "<color>"; inherits: true; initial-value: #1d4ed8; }
 @property --glow-a { syntax: "<number>"; inherits: true; initial-value: 0.26; }
-@property --particle { syntax: "<color>"; inherits: true; initial-value: #22d3ee; }
-@property --accent { syntax: "<color>"; inherits: true; initial-value: #22d3ee; }
-@property --accent-2 { syntax: "<color>"; inherits: true; initial-value: #818cf8; }
-@property --sun-x { syntax: "<percentage>"; inherits: true; initial-value: 78%; }
-@property --sun-y { syntax: "<percentage>"; inherits: true; initial-value: 20%; }
+@property --particle { syntax: "<color>"; inherits: true; initial-value: #b5e3d7; }
+@property --accent { syntax: "<color>"; inherits: true; initial-value: #65e7d1; }
+@property --accent-2 { syntax: "<color>"; inherits: true; initial-value: #b6a8ff; }
+@property --sun-x { syntax: "<number>"; inherits: true; initial-value: 0.7; }
+@property --sun-scale { syntax: "<number>"; inherits: true; initial-value: 1; }
+/* Registered so it resolves to a real length: unregistered, it stayed the
+   literal calc() string and getComputedStyle handed tests NaN. */
+@property --disc { syntax: "<length>"; inherits: true; initial-value: 62px; }
+@property --sun-y { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --sun-arc { syntax: "<length>"; inherits: true; initial-value: 10px; }
 @property --sun-size { syntax: "<length>"; inherits: true; initial-value: 62px; }
 @property --sun-color { syntax: "<color>"; inherits: true; initial-value: #dfe7ff; }
 @property --sun-halo { syntax: "<number>"; inherits: true; initial-value: 0.35; }
+/* How much of a moon this is: 0 is the sun, 1 raises the maria and the
+   sphere shading that make it read as the moon rather than a pale sun. */
+@property --moon { syntax: "<number>"; inherits: true; initial-value: 0; }
 @property --windows { syntax: "<number>"; inherits: true; initial-value: 0.85; }
 @property --window-color { syntax: "<color>"; inherits: true; initial-value: #ffd9a0; }
 @property --stars { syntax: "<number>"; inherits: true; initial-value: 1; }
@@ -29,6 +37,20 @@
 @property --glow-w { syntax: "<percentage>"; inherits: true; initial-value: 70%; }
 @property --glow-h { syntax: "<percentage>"; inherits: true; initial-value: 26%; }
 @property --fireflies { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --season-tint { syntax: "<color>"; inherits: true; initial-value: #9fb6d9; }
+@property --season-tint-a { syntax: "<number>"; inherits: true; initial-value: 0.2; }
+/* How much of the season tint this hour can carry. A tint is light, and at
+   night there is very little of it: a wash strong enough to read at midday
+   turns the night sky brown. So the season shows in the sky by day, and in
+   what is falling through it by night, where the particles are at 3.6-7.6
+   contrast and carry the season on their own. */
+@property --season-light { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --season-haze { syntax: "<number>"; inherits: true; initial-value: 0.5; }
+@property --fall { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --fall-color { syntax: "<color>"; inherits: true; initial-value: #e8f0ff; }
+@property --fall-lit { syntax: "<color>"; inherits: true; initial-value: #e8f0ff; }
+@property --fall-dim { syntax: "<color>"; inherits: true; initial-value: #576a86; }
+@property --fall-shade { syntax: "<percentage>"; inherits: true; initial-value: 0%; }
 
 /* ------------------------------------------------------------------ *
  * Design tokens
@@ -72,103 +94,168 @@
  * and by how much warmth collects at the horizon.
  */
 [data-mood="dawn"] {
-  --sky-a: #0e1630;
-  --sky-b: #253154;
-  --glow: #f9a8d4;
+  --fall-shade: 0%;
+  --sky-a: #181330;
+  --sky-b: #3c335c;
+  --glow: #f8b3d3;
   --glow-a: 0.3;
   --glow-w: 46%;
   --glow-h: 20%;
-  --particle: #a5b4fc;
-  --accent: #a78bfa;
-  --accent-2: #7dd3fc;
-  --accent-contrast: #100a24;
-  --shadow-tint: rgba(90, 110, 200, 0.3);
+  --particle: #e8cfe4;
+  --accent: #f19fd7;
+  --accent-2: #62d6f0;
+  --accent-contrast: #270e20;
+  --shadow-tint: rgba(198, 130, 180, 0.28);
   --clouds: 0.24;
-  --cloud-color: #cdd8f5;
+  --season-light: 0.55;
+  --cloud-color: #cacbe8;
   --fireflies: 0;
-  --sun-x: 13%;
-  --sun-y: 12%;
-  --sun-size: 84px;
-  --sun-color: #ffd2c2;
+  --sun-x: 0.04;
+  --sun-y: 0.6;
+  --sun-size: 66px;
+  --sun-color: #ffd4c9;
   --sun-halo: 0.42;
+  --moon: 0.14;
   --windows: 0.28;
-  --window-color: #ffd9a0;
+  --window-color: #fbd094;
   --stars: 0.35;
 }
 
 [data-mood="day"] {
-  --sky-a: #14395e;
-  --sky-b: #3b82c4;
-  --glow: #ffe8b0;
+  /* Particles read against the sky by contrast, and by day the sky is bright,
+     so daytime snow and petals are silhouettes rather than highlights.
+     Measured: pale ones sit at 1.2-1.4 contrast by day, which is invisible. */
+  --fall-shade: 100%;
+  --sky-a: #185373;
+  --sky-b: #4593b9;
+  --glow: #f7ecbe;
   --glow-a: 0.38;
   --glow-w: 90%;
   --glow-h: 34%;
-  --particle: #dbeafe;
-  --accent: #facc15;
-  --accent-2: #38bdf8;
-  --accent-contrast: #1c1503;
-  --shadow-tint: rgba(12, 60, 110, 0.5);
+  --particle: #f0e7d2;
+  --accent: #d9d76c;
+  --accent-2: #ff9f9f;
+  --accent-contrast: #1f1e00;
+  --shadow-tint: rgba(96, 84, 44, 0.40);
   --clouds: 0.58;
-  --cloud-color: #f4faff;
+  --season-light: 1;
+  --cloud-color: #f5f2e9;
   --fireflies: 0;
-  --sun-x: 62%;
-  --sun-y: 8%;
-  --sun-size: 76px;
-  --sun-color: #fff8e2;
+  --sun-x: 0.46;
+  --sun-y: -1;
+  --sun-size: 62px;
+  --sun-color: #fdf6d8;
   --sun-halo: 0.85;
+  --moon: 0;
   --windows: 0;
-  --window-color: #ffd9a0;
+  --window-color: #fbd094;
   --stars: 0;
 }
 
 [data-mood="dusk"] {
-  --sky-a: #1a1020;
-  --sky-b: #4a1f2a;
-  --glow: #ff6b2c;
+  --fall-shade: 0%;
+  --sky-a: #281027;
+  --sky-b: #642627;
+  --glow: #e77140;
   --glow-a: 0.58;
   --glow-w: 96%;
   --glow-h: 52%;
-  --particle: #fdba74;
-  --accent: #fb923c;
-  --accent-2: #f43f5e;
-  --accent-contrast: #1b0d05;
-  --shadow-tint: rgba(255, 105, 40, 0.3);
+  --particle: #f6cfae;
+  --accent: #feb16a;
+  --accent-2: #bfa7fb;
+  --accent-contrast: #281200;
+  --shadow-tint: rgba(215, 120, 70, 0.30);
   --clouds: 0.44;
-  --cloud-color: #ffb384;
+  --season-light: 0.6;
+  --cloud-color: #efac8d;
   --fireflies: 0.35;
-  --sun-x: 85%;
-  --sun-y: 14%;
-  --sun-size: 106px;
-  --sun-color: #ff8a3d;
+  --sun-x: 0.94;
+  --sun-y: 0.4;
+  --sun-size: 72px;
+  --sun-color: #ff9661;
   --sun-halo: 0.66;
+  --moon: 0;
   --windows: 0.55;
-  --window-color: #ffcf8a;
+  --window-color: #fbd094;
   --stars: 0.3;
 }
 
 [data-mood="night"] {
-  --sky-a: #04060c;
-  --sky-b: #0b1020;
-  --glow: #1e3a8a;
+  --fall-shade: 0%;
+  --sky-a: #030810;
+  --sky-b: #101926;
+  --glow: #233869;
   --glow-a: 0.24;
   --glow-w: 70%;
   --glow-h: 26%;
-  --particle: #22d3ee;
-  --accent: #22d3ee;
-  --accent-2: #818cf8;
-  --accent-contrast: #06232a;
+  --particle: #bfe9db;
+  --accent: #75e7bf;
+  --accent-2: #87bafe;
+  --accent-contrast: #001f14;
   --shadow-tint: rgba(0, 0, 0, 0.85);
   --clouds: 0.08;
-  --cloud-color: #6d7f9e;
+  --season-light: 0.22;
+  --cloud-color: #798898;
   --fireflies: 1;
-  --sun-x: 72%;
-  --sun-y: 9%;
-  --sun-size: 58px;
-  --sun-color: #dfe7ff;
-  --sun-halo: 0.32;
+  --sun-x: 0.72;
+  --sun-y: 0;
+  --sun-size: 64px;
+  --sun-color: #dee9f5;
+  --sun-halo: 0.5;
+  --moon: 1;
   --windows: 0.9;
-  --window-color: #ffd9a0;
+  --window-color: #fbd094;
   --stars: 1;
+}
+
+
+/* ---- Seasons ----
+ *
+ * Layered on top of the mood, never replacing it. A season sets a faint tint
+ * over the sky, how hazy the air reads, and what is falling through it. It
+ * deliberately does NOT touch the accents: those are a measured family with
+ * contrast guarantees, and 4 moods x 4 seasons of accents would be sixteen
+ * palettes to keep honest instead of four.
+ *
+ * Costs at runtime: one attribute on <html>, and a particle system that rides
+ * the canvas already drawing stars and fireflies. No extra layer, no extra
+ * animation frame.
+ */
+[data-season="spring"] {
+  --season-tint: #b6e0c2;
+  --season-tint-a: 0.2;
+  --season-haze: 0.55;
+  --fall: 0.5;
+  --fall-lit: #f7d6e6;
+  --fall-dim: #884d6d;
+}
+
+[data-season="summer"] {
+  --season-tint: #ffd9a8;
+  --season-tint-a: 0.22;
+  --season-haze: 0.75;
+  /* Heat rises rather than falls — thin, and it goes the other way. */
+  --fall: 0.3;
+  --fall-lit: #ffe6bb;
+  --fall-dim: #7d5d1c;
+}
+
+[data-season="autumn"] {
+  --season-tint: #e8b07a;
+  --season-tint-a: 0.24;
+  --season-haze: 0.6;
+  --fall: 0.75;
+  --fall-lit: #e0904f;
+  --fall-dim: #944e00;
+}
+
+[data-season="winter"] {
+  --season-tint: #b9d2ec;
+  --season-tint-a: 0.22;
+  --season-haze: 0.35;
+  --fall: 1;
+  --fall-lit: #eef5ff;
+  --fall-dim: #576a86;
 }
 
 /* ---- Surfaces ----
@@ -177,6 +264,44 @@
  */
 [data-theme="dark"],
 :root {
+  /* Where the celestial body sits: the middle of the band of sky left visible
+     above the panels, and how far it may swing either side of that for the
+     arc across the day. A phone docks its panels higher, so both shrink —
+     the arc flattens rather than pushing the sun behind a card. */
+  --sky-band: 39px;
+  --sun-arc: 3px;
+  /*
+   * The open sky, horizontally. The wordmark sits at the shell's left edge and
+   * the mood switcher at its right, and both move with the shell, not with the
+   * viewport — so a celestial body placed at a fixed percentage of the viewport
+   * drifted across them differently at every width, at worst parking the sun
+   * behind "Bakul Ahmed." where it washed the text out. These bounds are the
+   * same container, so the gap is the gap at every size.
+   */
+  --shell-pad: 1.25rem;
+  --shell-edge: max(0px, (100vw - var(--shell)) / 2);
+  /* The size actually drawn, after the small-screen scale. */
+  --disc: calc(var(--sun-size) * var(--sun-scale));
+  /* The bounds subtract the body's own radius, so --sun-x 0 and 1 are the
+     furthest its EDGE can go without touching the wordmark or the switcher —
+     not its centre. Clearances alone left a 2px overlap at 768px, where the
+     switcher is widest relative to the strip. */
+  /* Measured chrome: the wordmark is 93px wide at every size, the switcher 144
+     on a phone and 160 from 640px up. Four pixels of air either side. */
+  --chrome-left: 97px;
+  --chrome-right: 148px;
+  --sky-left: calc(var(--shell-edge) + var(--shell-pad) + var(--chrome-left) + var(--disc) / 2);
+  --sky-right: calc(100vw - var(--shell-edge) - var(--shell-pad) - var(--chrome-right) - var(--disc) / 2);
+  /* A phone's strip is barely wider than the sun itself, and a 320px bar has
+     only 43px between wordmark and switcher — so the body shrinks again there
+     rather than sitting on top of either. */
+  --sun-scale: 0.48;
+
+  /* What the season drops. Each season carries two colours of the same hue —
+     one for dark skies, one deep enough to read against a bright one — and the
+     mood picks between them. Mixing in oklch rather than oklab keeps the hue
+     and chroma intact: mixing toward a neutral ink turned spring's pink grey. */
+  --fall-color: color-mix(in oklch, var(--fall-lit), var(--fall-dim) var(--fall-shade));
   --panel-rgb: 20 22 31;
   --tile-rgb: 30 33 45;
   --fg: #f7f8fb;
@@ -188,6 +313,37 @@
   --shadow: 0 24px 60px -30px var(--shadow-tint, rgba(0, 0, 0, 0.85));
 }
 
+@media (min-width: 380px) {
+  :root {
+    --sun-scale: 0.72;
+  }
+}
+
+@media (min-width: 640px) {
+  :root {
+    --shell-pad: 2rem;
+    --chrome-right: 164px;
+  }
+}
+
+/* Past 768px the panels sit lower, so there is more open sky to arc through —
+   and only then is there room for the body at full size. Growing it at 640,
+   where the band is still the phone's, left it 1.8px off the panel. */
+@media (min-width: 768px) {
+  :root {
+    --sky-band: 50px;
+    --sun-arc: 10px;
+    --sun-scale: 1;
+  }
+}
+
+@media (min-width: 1120px) {
+  :root {
+    --shell-pad: 2.5rem;
+  }
+}
+
+
 /**
  * Nightfall is staged, not simultaneous. The sky turns first, the horizon
  * follows, the city lights come on once it is dark enough to notice, and the
@@ -196,27 +352,49 @@
  *
  * Only paint properties transition, so a mood change can never move layout.
  */
+/**
+ * Only the values the UI chrome and the canvas read still interpolate. The
+ * scene's own colours are static per set and cross-faded instead, because
+ * interpolating them repainted six full-viewport gradients every frame.
+ */
 :root {
   transition:
-    --sky-a 3000ms var(--ease),
-    --sky-b 3000ms var(--ease),
-    --sun-x 3200ms var(--ease),
-    --sun-y 3200ms var(--ease),
-    --sun-size 3200ms var(--ease),
-    --sun-color 3200ms var(--ease),
-    --sun-halo 2800ms var(--ease),
-    --glow 2600ms var(--ease) 200ms,
-    --glow-a 2600ms var(--ease) 200ms,
-    --glow-w 2600ms var(--ease) 200ms,
-    --glow-h 2600ms var(--ease) 200ms,
-    --clouds 2800ms var(--ease) 300ms,
-    --cloud-color 2800ms var(--ease) 300ms,
+    --sky-a 2600ms var(--ease),
+    --sky-b 2600ms var(--ease),
+    --sun-x 2800ms var(--ease),
+    --sun-scale 2800ms var(--ease),
+    --sun-y 2800ms var(--ease),
+    --sun-arc 2800ms var(--ease),
+    --sun-size 2800ms var(--ease),
+    --sun-color 2800ms var(--ease),
+    --sun-halo 2400ms var(--ease),
+    --moon 2400ms var(--ease) 600ms,
+    --glow 2200ms var(--ease) 200ms,
+    --glow-a 2200ms var(--ease) 200ms,
+    --glow-w 2200ms var(--ease) 200ms,
+    --glow-h 2200ms var(--ease) 200ms,
+    --clouds 2400ms var(--ease) 300ms,
+    /* Stepped, not eased. Interpolating a colour inside these gradients cost
+       41ms per frame: both cloud layers are inset past the viewport and
+       compositor-promoted for their drift, so every intermediate value
+       re-rasterised them at full size. steps() changes the value a handful of
+       times instead of 150, which is visually a soft shift under a layer that
+       is fading anyway, and costs almost nothing. */
+    --cloud-color 2400ms steps(6) 300ms,
     --windows 1800ms var(--ease) 1000ms,
     --window-color 1800ms var(--ease) 1000ms,
-    --stars 2800ms var(--ease) 1300ms,
-    --fireflies 2400ms var(--ease) 1600ms,
-    --particle 2600ms var(--ease),
-    --shadow-tint 2400ms var(--ease),
+    --stars 2600ms var(--ease) 1100ms,
+    --fireflies 2400ms var(--ease) 1400ms,
+    --particle 2000ms var(--ease),
+    --season-tint 2400ms var(--ease),
+    --season-tint-a 2400ms var(--ease),
+    --season-light 2400ms var(--ease),
+    --season-haze 2400ms var(--ease),
+    --fall 2000ms var(--ease),
+    --fall-lit 2000ms var(--ease),
+    --fall-dim 2000ms var(--ease),
+    --fall-shade 2000ms var(--ease),
+    --shadow-tint 2000ms var(--ease),
     --accent 1400ms var(--ease),
     --accent-2 1400ms var(--ease);
 }
@@ -250,6 +428,9 @@
 
   body {
     min-height: 100%;
+    /* No grey/blue flash on tap, and no rubber-band revealing the page behind. */
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
     /* The Scene component paints the background; body only holds the base
        colour so there is never a flash of white behind it. */
     background-color: var(--sky-a);
@@ -276,7 +457,7 @@
     width: 100%;
     max-width: var(--shell);
     margin-inline: auto;
-    padding-inline: 1.25rem;
+    padding-inline: max(1.25rem, env(safe-area-inset-left), env(safe-area-inset-right));
   }
 
   @media (min-width: 640px) {
@@ -342,13 +523,19 @@
     border-color: color-mix(in oklab, var(--accent) 26%, var(--border));
   }
 
+  /* The accent gradient, interpolated in oklch so it keeps its chroma through
+     the middle instead of passing through grey. */
+  .grad-accent {
+    background-image: linear-gradient(in oklch 90deg, var(--accent), var(--accent-2));
+  }
+
   /* Short gradient rule under a page or section title. */
   .rule {
     display: block;
     width: 2rem;
     height: 4px;
     border-radius: 999px;
-    background-image: linear-gradient(90deg, var(--accent), var(--accent-2));
+    background-image: linear-gradient(in oklch 90deg, var(--accent), var(--accent-2));
   }
 
   .icon-chip {
@@ -387,8 +574,13 @@
   inherits: false;
 }
 
-.shine {
-  position: relative;
+@layer components {
+  /* Layered deliberately: unlayered this beat every Tailwind utility, and
+     `lg:sticky` on the identity rail lost to it. `.shine::after` only needs
+     the element to be positioned — sticky qualifies. */
+  .shine {
+    position: relative;
+  }
 }
 
 .shine::after {
@@ -483,7 +675,6 @@
 .scene > * {
   position: absolute;
   inset: -10% -5%;
-  transition: background var(--mood-fade) var(--ease), opacity var(--mood-fade) var(--ease);
 }
 
 .scene__sky {
@@ -503,9 +694,16 @@
       40% 26% at 18% 8%,
       color-mix(in oklab, var(--accent) 12%, transparent) 0%,
       transparent 70%
+    ),
+    /* Season tint — a wash over the whole sky, no extra element. */
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--season-tint) calc(var(--season-tint-a) * var(--season-light) * 100%), transparent) 0%,
+      transparent 70%
     );
   translate: 0 var(--p2, 0px);
 }
+
 
 /* Soft cloud banks, drifting. Two layers at different speeds so the sky has
    depth rather than one sliding texture. */
@@ -515,11 +713,9 @@
   /* Soft edges come from the gradient falloff, not a blur filter: filtering a
      layer this size re-rasterises it every frame and cost ~19 FPS. */
   background-image:
-    radial-gradient(30% 9% at 18% 22%, var(--cloud-color) 0%, transparent 62%),
-    radial-gradient(22% 7% at 30% 27%, var(--cloud-color) 0%, transparent 60%),
-    radial-gradient(26% 8% at 54% 17%, var(--cloud-color) 0%, transparent 62%),
-    radial-gradient(34% 10% at 80% 25%, var(--cloud-color) 0%, transparent 62%),
-    radial-gradient(20% 6% at 92% 20%, var(--cloud-color) 0%, transparent 60%);
+    radial-gradient(34% 10% at 22% 24%, var(--cloud-color) 0%, transparent 62%),
+    radial-gradient(28% 9% at 56% 18%, var(--cloud-color) 0%, transparent 62%),
+    radial-gradient(36% 11% at 84% 26%, var(--cloud-color) 0%, transparent 62%);
   will-change: transform;
   animation: drift 190s linear infinite;
 }
@@ -527,12 +723,10 @@
 .scene__clouds--low {
   inset: -6% -40%;
   /* Denser and softer nearer the horizon, the way haze stacks up. */
-  opacity: calc(var(--clouds) * 0.7);
+  opacity: calc(var(--clouds) * 0.7 * (0.6 + var(--season-haze) * 0.8));
   background-image:
-    radial-gradient(40% 8% at 10% 44%, var(--cloud-color) 0%, transparent 66%),
-    radial-gradient(30% 6% at 38% 49%, var(--cloud-color) 0%, transparent 64%),
-    radial-gradient(34% 7% at 68% 42%, var(--cloud-color) 0%, transparent 66%),
-    radial-gradient(26% 6% at 90% 47%, var(--cloud-color) 0%, transparent 64%);
+    radial-gradient(44% 9% at 14% 45%, var(--cloud-color) 0%, transparent 66%),
+    radial-gradient(38% 8% at 66% 42%, var(--cloud-color) 0%, transparent 66%);
   will-change: transform;
   animation: drift 118s linear infinite reverse;
 }
@@ -550,6 +744,14 @@
   .scene__clouds,
   .scene__clouds--low {
     animation: none;
+  }
+
+  /* No turn for anyone who asked not to be moved: the portrait just changes. */
+  .swiper__slide,
+  .swiper__slide[data-active="true"] {
+    transform: none;
+    transition: opacity 200ms linear;
+    transition-delay: 0ms;
   }
 }
 
@@ -580,23 +782,90 @@
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='240' preserveAspectRatio='none'%3E%3Cpath fill='%23000' d='M0 240V160h40v-36h30v36h36v-52h28v52h44v-40h34v40h46v-30h32v30h40v-58h28v58h38v-24h40v24h36v-42h30v42h42v-32h34v32h44v-50h30v50h48v-18h34v18h56v80Z'/%3E%3C/svg%3E");
 }
 
-/* The sun or moon, arcing between moods. */
+/* The sun or moon, arcing between moods.
+   Sized to its own halo and positioned, rather than a full-viewport gradient
+   with an animated centre — that repainted the whole screen every frame of a
+   mood change, which is what made the sun appear to flicker. */
 .scene__celestial {
-  inset: 0;
+  inset: auto;
+  left: calc(var(--sky-left) + var(--sun-x) * (var(--sky-right) - var(--sky-left)));
+  /*
+   * The sky is only actually visible in the strip above the panels, so the
+   * celestial body is anchored to that strip in px. It used to be a share of
+   * the viewport height while the panels sat at a fixed offset, which meant
+   * that on any display taller than about 760px the sun and moon sank behind
+   * the panel — and the taller the display, the deeper they sank. --sun-y is
+   * now a small per-mood offset for the arc, not the position itself.
+   */
+  top: calc(var(--sky-band) + var(--sun-y) * var(--sun-arc));
+  width: calc(var(--disc) * 6);
+  height: calc(var(--disc) * 6);
+  margin-left: calc(var(--disc) * -3);
+  margin-top: calc(var(--disc) * -3);
+  border-radius: 999px;
   background:
     radial-gradient(
-      circle at var(--sun-x) var(--sun-y),
+      circle at 50% 50%,
       var(--sun-color) 0,
-      var(--sun-color) calc(var(--sun-size) * 0.42),
-      color-mix(in oklab, var(--sun-color) 55%, transparent) calc(var(--sun-size) * 0.5),
-      transparent calc(var(--sun-size) * 0.62)
+      /* The sun is a light source and its edge should bleed; the moon is a
+         solid body and its limb is famously sharp. These stops close up as
+         --moon rises, so the crisp ::before below defines the edge instead of
+         a soft ring bleeding past it. */
+      var(--sun-color) calc(var(--disc) * (0.42 + var(--moon) * 0.06)),
+      color-mix(in oklab, var(--sun-color) 55%, transparent) calc(var(--disc) * (0.5 + var(--moon) * 0.005)),
+      transparent calc(var(--disc) * (0.62 - var(--moon) * 0.11))
     ),
     radial-gradient(
-      circle at var(--sun-x) var(--sun-y),
+      circle at 50% 50%,
       color-mix(in oklab, var(--sun-color) calc(var(--sun-halo) * 55%), transparent) 0,
-      transparent calc(var(--sun-size) * 3.4)
+      transparent calc(var(--disc) * 3)
     );
   translate: 0 var(--p2, 0px);
+}
+
+/*
+ * The moon, drawn over the same disc when --moon comes up. A sun is a flat
+ * source of light and reads correctly as a soft disc; a moon is a lit sphere
+ * of rock, and without maria, a terminator and limb darkening it just looks
+ * like a small pale sun. This is a pseudo-element, so the moon costs no extra
+ * node, and at --moon: 0 it is transparent and the sun below is untouched.
+ *
+ * The maria are soft-edged ellipses at low contrast, not discs: hard circles
+ * of even size read as polka dots, and at this size (64px) any crisp detail
+ * turns to mush anyway. Overlapping ellipses at different angles give the
+ * irregular outlines real maria have, and clustering them off-centre keeps the
+ * face from looking like a pattern.
+ */
+.scene__celestial::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--disc);
+  height: var(--disc);
+  margin: calc(var(--disc) / -2) 0 0 calc(var(--disc) / -2);
+  border-radius: 999px;
+  opacity: var(--moon);
+  background:
+    /* Mare Imbrium and Serenitatis: the big pair on the upper left, run
+       together the way they do in the sky. */
+    radial-gradient(ellipse 26% 20% at 36% 33%, rgba(92, 110, 143, 0.46) 0%, rgba(92, 110, 143, 0.26) 55%, transparent 82%),
+    radial-gradient(ellipse 17% 22% at 47% 27%, rgba(92, 110, 143, 0.34) 0%, transparent 78%),
+    /* Tranquillitatis and Nectaris, lower and to the right. */
+    radial-gradient(ellipse 22% 17% at 61% 55%, rgba(88, 106, 139, 0.40) 0%, rgba(88, 106, 139, 0.20) 60%, transparent 85%),
+    radial-gradient(ellipse 15% 13% at 46% 74%, rgba(88, 106, 139, 0.28) 0%, transparent 80%),
+    /* Procellarum along the western limb, and a couple of faint highlands. */
+    radial-gradient(ellipse 15% 26% at 25% 52%, rgba(96, 114, 147, 0.30) 0%, transparent 84%),
+    radial-gradient(ellipse 11% 9% at 74% 33%, rgba(96, 114, 147, 0.22) 0%, transparent 82%),
+    radial-gradient(ellipse 8% 10% at 30% 74%, rgba(96, 114, 147, 0.18) 0%, transparent 84%),
+    radial-gradient(ellipse 9% 8% at 66% 20%, rgba(96, 114, 147, 0.15) 0%, transparent 84%),
+    /* Limb darkening: a real sphere loses light towards its edge, and this is
+       most of what stops the disc reading as a flat cut-out. */
+    radial-gradient(circle at 50% 50%, transparent 52%, rgba(12, 20, 34, 0.34) 92%, rgba(12, 20, 34, 0.5) 100%),
+    /* The terminator, lit from the upper left. */
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.16) 0%, transparent 46%),
+    radial-gradient(circle at 30% 26%, transparent 38%, rgba(9, 15, 28, 0.40) 99%),
+    var(--sun-color);
 }
 
 /* Windows in the near skyline, lit once the sky has darkened. */
@@ -640,6 +909,10 @@
     translate: none !important;
   }
 
+  .scene__set--in * {
+    animation: none !important;
+  }
+
   /* No staged nightfall: land on the new mood at once. */
   :root {
     transition: none;
@@ -660,7 +933,7 @@
 
 .dock__pill {
   border-radius: 999px;
-  background-image: linear-gradient(100deg, var(--accent), var(--accent-2));
+  background-image: linear-gradient(in oklch 100deg, var(--accent), var(--accent-2));
   transition: transform 0.45s cubic-bezier(0.34, 1.4, 0.5, 1), width 0.45s cubic-bezier(0.34, 1.4, 0.5, 1);
   will-change: transform, width;
 }
@@ -679,8 +952,12 @@
 .swiper__stage {
   position: absolute;
   inset: 0;
-  cursor: grab;
+  cursor: pointer;
   touch-action: pan-y;
+  /* The depth the flip is seen through: shallower reads as a gimmick, flatter
+     stops reading as a turn at all. */
+  perspective: 1100px;
+  transform-style: preserve-3d;
   transition: transform 0.35s var(--ease);
 }
 
@@ -699,13 +976,47 @@
   display: grid;
   place-items: center;
   opacity: 0;
-  transform: scale(1.05);
-  transition: opacity 0.7s var(--ease), transform 1.4s var(--ease);
+  transform: rotateY(-96deg) scale(0.94);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /*
+   * The two halves of one turn. Each face takes 290ms to swing through a
+   * quarter, and the incoming face waits exactly that long before starting, so
+   * the hand-off happens at the instant both are edge-on and neither is
+   * showing any width. Opacity is a hard switch at that same instant rather
+   * than a fade: fading them left a ~60ms window where the outgoing had
+   * already reached zero and the incoming had not yet begun, and the frame
+   * went visibly empty.
+   */
+  transition:
+    transform 290ms cubic-bezier(0.5, 0, 0.5, 1),
+    opacity 0s linear 288ms;
 }
 
+/*
+ * One portrait turns away and the next turns in behind it, like a card being
+ * flipped rather than a slideshow being advanced: both faces move on the same
+ * axis, in the same direction, so it reads as one object turning over.
+ *
+ * The hand-off is pure transition-delay. An outgoing face loses [data-active]
+ * and falls back to the base rule, so it leaves at once; the incoming face
+ * gains the delay and arrives just after. That works for any number of
+ * portraits, not only two, and needs no JavaScript to sequence it.
+ */
 .swiper__slide[data-active="true"] {
   opacity: 1;
-  transform: scale(1);
+  transform: rotateY(0deg) scale(1);
+  transition-delay: 290ms, 290ms;
+}
+
+/*
+ * The slow zoom lives on the picture, not on the card. Both used to drive
+ * `transform` on the same element, and a running animation always wins over a
+ * transition — so the card snapped between angles instead of turning, and only
+ * the opacity fade was visible. Separating them lets the card flip while the
+ * photograph inside it keeps drifting.
+ */
+.swiper__slide[data-active="true"] > * {
   animation: swiper-drift 9s var(--ease) forwards;
 }
 
@@ -721,7 +1032,7 @@
 }
 
 @media (prefers-reduced-motion: reduce), (hover: none) {
-  .swiper__slide[data-active="true"] {
+  .swiper__slide[data-active="true"] > * {
     animation: none;
   }
 }
@@ -741,82 +1052,49 @@
 /* The only chrome: a hairline rail. The active segment fills over that
    photograph's turn, so position and timing read at a glance without arrows,
    dots or a counter. Segments stay buttons, with a tall invisible hit area. */
-.swiper__rail {
-  position: absolute;
-  inset-inline: 0.75rem;
-  bottom: 0.7rem;
-  display: flex;
-  gap: 0.3rem;
-  opacity: 0.85;
-}
-
-.swiper__seg {
-  /* Grid so the hairline and its fill share one cell; the 24px height is the
-     touch target, the 2px bar inside it is what you see. */
-  display: grid;
-  align-items: end;
-  flex: 1;
-  height: 1.5rem;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-}
-
-.swiper__seg::before {
+/*
+ * A portrait needs an edge of its own: the rotating .shine ring on the wrapper
+ * is the frame, and this is the hairline just inside it. There is no scrim any
+ * more — it existed only to keep the progress rail legible over a photograph,
+ * and the rail is gone.
+ */
+.swiper::after {
   content: "";
-  display: block;
-  height: 2px;
-  border-radius: 999px;
-  background-color: color-mix(in oklab, var(--fg) 26%, transparent);
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.10),
+    inset 0 1px 0 0 rgb(255 255 255 / 0.08);
 }
 
-.swiper__seg > span {
-  display: block;
-  grid-area: 1 / 1;
-  align-self: end;
-  height: 2px;
-  width: 0;
-  border-radius: 999px;
-  background-image: linear-gradient(90deg, var(--accent), var(--accent-2));
-}
+
+
+
+
+
+
+
 
 /* Past photographs read as complete. */
-.swiper__seg[data-state="past"] > span {
-  width: 100%;
-  opacity: 0.5;
-}
 
-.swiper__seg[data-state="active"] > span {
-  animation: seg-fill 5.2s linear forwards;
-}
 
-.swiper__rail[data-paused="true"] .swiper__seg[data-state="active"] > span {
-  animation-play-state: paused;
-}
 
-@keyframes seg-fill {
-  from {
-    width: 0;
-  }
-  to {
-    width: 100%;
-  }
-}
+
+
+
+
 
 /* No auto-advance to visualise: the active segment just marks its place. */
 @media (prefers-reduced-motion: reduce) {
-  .swiper__seg[data-state="active"] > span {
-    animation: none;
-    width: 100%;
-  }
+  
 }
 
 /* The compact rail portrait is ~80px — chrome would cover the picture. */
 @container (max-width: 150px) {
-  .swiper__rail {
-    display: none;
-  }
+  
 }
 
 /* ------------------------------------------------------------------ *
@@ -874,23 +1152,6 @@
 .btn-shine:hover::after,
 .btn-shine:focus-visible::after {
   transform: translateX(130%);
-}
-
-/* Softens content scrolling under the fixed mobile dock. */
-.dock-fade {
-  position: fixed;
-  inset-inline: 0;
-  bottom: 0;
-  height: 6rem;
-  z-index: 40;
-  pointer-events: none;
-  background: linear-gradient(to top, var(--sky-b) 14%, transparent);
-}
-
-@media (min-width: 768px) {
-  .dock-fade {
-    display: none;
-  }
 }
 
 /* Scroll reveal — armed only when JS is running. */
@@ -951,6 +1212,48 @@ html[data-js] [data-reveal][data-revealed="true"] {
   100% {
     stroke-dashoffset: 0;
     opacity: 0;
+  }
+}
+
+/* Softens content scrolling under the fixed mobile nav. Attached to the nav so
+   it shares its stacking context — as a document-level sibling it painted over
+   the bar — and derived from the panel colour so it always darkens, whatever
+   the sky is doing. */
+/* Clears the iOS home indicator; zero everywhere else. */
+@media (max-width: 767px) {
+  .navbar-scrim {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+.navbar-scrim::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: 3.25rem;
+  pointer-events: none;
+  background: linear-gradient(to top, rgb(var(--panel-rgb) / 0.92), transparent);
+}
+
+@media (min-width: 768px) {
+  .navbar-scrim::before {
+    display: none;
+  }
+}
+
+/* Touch has no hover, so pressable things acknowledge the tap itself. */
+@media (hover: none) {
+  a,
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .tile:active,
+  a.btn-shine:active,
+  button.btn-shine:active {
+    transition-duration: 90ms;
+    transform: scale(0.985);
   }
 }
 
@@ -1137,7 +1440,16 @@ html[data-js] [data-reveal][data-revealed="true"] {
 
 /* Gradient text used for the hero name. */
 .gradient-text {
-  background-image: linear-gradient(100deg, var(--fg) 8%, var(--accent) 52%, var(--accent-2) 92%);
+  /*
+   * NOT `longer hue`. That keyword forces oklch to interpolate the long way
+   * round the hue wheel, so the headline swept through every hue on the circle
+   * and looked like the same rainbow in every mood — whatever accents the hour
+   * actually supplied. Taking the short way makes the headline read as the
+   * mood's own pair: rose into blue at dawn, mint into blue at night.
+   * --fg has almost no chroma, so its hue is powerless and the first leg is a
+   * clean fade from white into the accent rather than a detour.
+   */
+  background-image: linear-gradient(in oklch 100deg, var(--fg) 6%, var(--accent) 50%, var(--accent-2) 96%);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;

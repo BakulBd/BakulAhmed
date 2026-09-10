@@ -51,7 +51,7 @@ export default function PanelNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-[rgb(var(--panel-rgb)/0.9)] backdrop-blur-xl md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:top-0 md:rounded-bl-2xl md:rounded-tr-[1.2rem] md:border-0 md:border-b md:border-l md:bg-[rgb(var(--tile-rgb)/0.6)]"
+      className="navbar-scrim fixed inset-x-0 bottom-0 z-40 border-t border-line bg-[rgb(var(--panel-rgb)/0.9)] backdrop-blur-xl md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:top-0 md:rounded-bl-2xl md:rounded-tr-[1.2rem] md:border-0 md:border-b md:border-l md:bg-[rgb(var(--tile-rgb)/0.6)]"
     >
       <ul
         ref={listRef}
@@ -61,7 +61,7 @@ export default function PanelNav() {
         {bar && (
           <li
             aria-hidden="true"
-            className="absolute left-0 top-0 h-[3px] rounded-full bg-gradient-to-r from-accent to-accent-2 transition-[transform,width] duration-500 ease-[cubic-bezier(.34,1.4,.5,1)] md:bottom-0 md:top-auto"
+            className="absolute left-0 top-0 h-[3px] rounded-full grad-accent transition-[transform,width] duration-500 ease-[cubic-bezier(.34,1.4,.5,1)] md:bottom-0 md:top-auto"
             style={{ transform: `translateX(${bar.left}px)`, width: bar.width }}
           />
         )}

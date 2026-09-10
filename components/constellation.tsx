@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Two particle systems on one canvas — stars overhead, fireflies low down —
- * sharing a single requestAnimationFrame so the page pays for one loop, not
- * two. Both fade with the mood: stars follow `--stars`, fireflies `--fireflies`
- * (night full, dusk a third, none by day).
+ * Three particle systems on ONE canvas — stars overhead, fireflies low down,
+ * and whatever the season is dropping through the air — sharing a single
+ * requestAnimationFrame so the page pays for one loop, not three. Each fades
+ * with its own variable: `--stars`, `--fireflies`, `--fall`.
  *
  * Deliberately sparse and low-contrast: texture, not decoration. Skipped
  * entirely under reduced motion, and paused while the tab is hidden.
@@ -49,6 +49,20 @@ export default function Constellation() {
     };
     let flies: Fly[] = [];
 
+    /** Snow, leaves or petals: whatever the season drops through the air. */
+    type Faller = {
+      x: number;
+      y: number;
+      r: number;
+      speed: number;
+      sway: number;
+      phase: number;
+      spin: number;
+      angle: number;
+      t: number;
+    };
+    let fallers: Faller[] = [];
+
     /**
      * Particle colour and density follow the mood: stars come out at night.
      *
@@ -56,18 +70,28 @@ export default function Constellation() {
      * few frames rather than every one — a mood transition takes seconds, and
      * reading it 60 times a second was pure overhead.
      */
-    let paint = { colour: "#22d3ee", strength: 1, fireflies: 1 };
+    let paint = {
+      colour: "#b5e3d7",
+      strength: 1,
+      fireflies: 1,
+      fall: 0,
+      fallColour: "#eef5ff",
+      season: "winter",
+    };
     let sinceSample = 1e9;
     const SAMPLE_EVERY = 12;
 
     const samplePaint = () => {
       const cs = getComputedStyle(document.documentElement);
       paint = {
-        colour: cs.getPropertyValue("--particle").trim() || "#22d3ee",
+        colour: cs.getPropertyValue("--particle").trim() || "#b5e3d7",
         // Follows --stars, which the mood transition eases in last, so the
         // stars come out gradually rather than appearing all at once.
         strength: Number(cs.getPropertyValue("--stars")) || 0,
         fireflies: Number(cs.getPropertyValue("--fireflies")) || 0,
+        fall: Number(cs.getPropertyValue("--fall")) || 0,
+        fallColour: cs.getPropertyValue("--fall-color").trim() || "#eef5ff",
+        season: document.documentElement.getAttribute("data-season") ?? "winter",
       };
     };
 
@@ -97,6 +121,22 @@ export default function Constellation() {
         phase: Math.random() * Math.PI * 2,
         rate: 0.6 + Math.random() * 0.9,
         r: 1.1 + Math.random() * 1.3,
+      }));
+
+      // Density scales with width so a phone draws a handful, not a blizzard.
+      const fallCount = Math.min(46, Math.round(width / 26));
+      fallers = Array.from({ length: fallCount }, (_, i) => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        r: 1 + Math.random() * 2.2,
+        speed: 0.25 + Math.random() * 0.55,
+        sway: 6 + Math.random() * 22,
+        phase: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 0.05,
+        angle: Math.random() * Math.PI * 2,
+        // Evenly spread cut-off: a particle joins once --fall passes it, so
+        // density follows the season and eases in over the transition.
+        t: (i + 0.5) / fallCount,
       }));
     };
 
@@ -138,6 +178,51 @@ export default function Constellation() {
         ctx.beginPath();
         ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
         ctx.fill();
+      }
+
+      // --- what the season is dropping ---
+      if (paint.fall > 0.01) {
+        ctx.save();
+        ctx.fillStyle = paint.fallColour;
+        // Leaves and petals are winged: they turn, sway wide and fall slowly.
+        // Snow just drifts. Summer inverts the whole thing — heat coming off
+        // the rooftops rises instead of falling.
+        const winged = paint.season === "autumn" || paint.season === "spring";
+        const rising = paint.season === "summer";
+        const drop = rising ? -0.42 : winged ? 0.72 : 1;
+        const swayScale = winged ? 1.9 : rising ? 1.5 : 1;
+        for (const d of fallers) {
+          // Fade in over the last eighth of the threshold so a season change
+          // thickens the air rather than popping particles into existence.
+          const a = paint.fall - d.t;
+          if (a <= 0) continue;
+          ctx.globalAlpha = Math.min(1, a * 8) * 0.72;
+
+          d.y += d.speed * drop;
+          d.x += Math.sin(now * 0.6 + d.phase) * (d.sway / 90) * swayScale;
+          if (d.y > height + 8 || d.y < -8) {
+            d.y = rising ? height + 8 : -8;
+            d.x = Math.random() * width;
+          }
+          if (d.x < -12) d.x = width + 12;
+          if (d.x > width + 12) d.x = -12;
+
+          if (winged) {
+            d.angle += d.spin;
+            ctx.save();
+            ctx.translate(d.x, d.y);
+            ctx.rotate(d.angle);
+            ctx.beginPath();
+            ctx.ellipse(0, 0, d.r * 1.9, d.r * 0.8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          } else {
+            ctx.beginPath();
+            ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        ctx.restore();
       }
 
       // --- fireflies ---

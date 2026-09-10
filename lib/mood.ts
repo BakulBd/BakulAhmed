@@ -19,6 +19,23 @@ export function themeForMood(id: string): "dark" {
 }
 
 /**
+ * Meteorological seasons, northern hemisphere. Derived from the date rather
+ * than offered as a control: the site changes quietly through the year while
+ * the mood switch stays the one thing to press.
+ *
+ * A season only touches the scene — a tint over the sky, how hazy the air is,
+ * and what falls through it (see [data-season] in globals.css and the fallers
+ * in components/constellation.tsx). Accents stay per-mood, so the palette family
+ * and its contrast guarantees are unaffected by the date.
+ */
+export function seasonForMonth(month: number): "spring" | "summer" | "autumn" | "winter" {
+  if (month >= 2 && month <= 4) return "spring";
+  if (month >= 5 && month <= 7) return "summer";
+  if (month >= 8 && month <= 10) return "autumn";
+  return "winter";
+}
+
+/**
  * Runs before first paint so the page never flashes the wrong sky. Kept as a
  * string because it is inlined into <head>; the logic mirrors the helpers
  * above and they are covered by the same tests.
@@ -27,4 +44,6 @@ export const moodScript = `(function(){try{var d=document.documentElement;d.setA
 var M={dawn:'dark',day:'dark',dusk:'dark',night:'dark'};
 var m=localStorage.getItem('${MOOD_KEY}');
 if(!M[m]){var h=new Date().getHours();m=h>=5&&h<9?'dawn':h>=9&&h<17?'day':h>=17&&h<20?'dusk':'night';}
-d.setAttribute('data-mood',m);d.setAttribute('data-theme',M[m]);d.style.colorScheme=M[m];}catch(e){}})();`;
+var mo=new Date().getMonth();
+var se=mo>=2&&mo<=4?'spring':mo>=5&&mo<=7?'summer':mo>=8&&mo<=10?'autumn':'winter';
+d.setAttribute('data-mood',m);d.setAttribute('data-season',se);d.setAttribute('data-theme',M[m]);d.style.colorScheme=M[m];}catch(e){}})();`;

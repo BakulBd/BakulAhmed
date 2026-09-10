@@ -11,14 +11,15 @@ const SWIPE_THRESHOLD = 48;
 /**
  * The portrait.
  *
- * Presentation over controls: photographs cross-fade on their own, and the
- * only chrome is a hairline rail whose active segment fills as that photo's
- * turn elapses — no arrows, no dots, no counter. The rail segments are still
- * buttons, so the set stays operable by pointer and keyboard, and swipe works
- * on touch.
+ * No chrome at all: no arrows, no dots, no counter, no progress rail. The
+ * portraits turn over on their own like a card being flipped, and the frame
+ * itself is the control — click or tap it, swipe it, or focus it and use the
+ * arrow keys. Two photographs of the same person do not need a widget; a
+ * progress bar over someone's face only reads as something still loading.
  *
  * Auto-advance pauses on hover, on focus, while dragging and when the tab is
- * hidden, and never starts at all under reduced motion (WCAG 2.2.2).
+ * hidden, and never starts at all under reduced motion (WCAG 2.2.2), where the
+ * flip also collapses to a plain swap.
  *
  * With `photos` empty it falls back to generated scenes, so the frame is never
  * an empty box before real pictures are added.
@@ -97,7 +98,11 @@ export default function PhotoSwiper({
       <div
         role="group"
         aria-roledescription="carousel"
-        aria-label="Photographs of Bakul Ahmed"
+        aria-label={
+          count > 1
+            ? "Portraits of Bakul Ahmed — click, swipe or use the arrow keys to turn to the next"
+            : "Portrait of Bakul Ahmed"
+        }
         tabIndex={0}
         onKeyDown={onKeyDown}
         onPointerDown={onPointerDown}
@@ -106,6 +111,7 @@ export default function PhotoSwiper({
         onPointerCancel={onPointerUp}
         onFocus={() => setPaused(true)}
         onBlur={() => setPaused(false)}
+        onClick={() => count > 1 && go(index + 1)}
         className="swiper__stage"
         style={{ transform: drag ? `translateX(${drag * 0.16}px)` : undefined }}
       >
@@ -126,7 +132,7 @@ export default function PhotoSwiper({
                 fill
                 sizes="(min-width: 1120px) 320px, (min-width: 640px) 45vw, 80vw"
                 priority={i === 0}
-                className="object-cover object-[center_35%]"
+                className="object-cover object-center"
               />
             ) : (
               <GeneratedScene index={i} />
@@ -135,30 +141,6 @@ export default function PhotoSwiper({
         ))}
       </div>
 
-      {count > 1 && (
-        <div
-          className="swiper__rail"
-          data-paused={paused || !motion}
-          role="group"
-          aria-label="Choose a photograph"
-        >
-          {Array.from({ length: count }, (_, i) => (
-            <button
-              key={i}
-              type="button"
-              aria-label={`Photograph ${i + 1} of ${count}`}
-              aria-current={i === index}
-              onClick={() => go(i)}
-              className="swiper__seg"
-              data-state={i === index ? "active" : i < index ? "past" : "future"}
-            >
-              {/* The fill animates over this photo's turn. Keyed on index so it
-                  restarts cleanly each time rather than resuming mid-way. */}
-              <span key={`${i}-${index}`} aria-hidden="true" />
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

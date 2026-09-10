@@ -14,7 +14,7 @@ export function renderOg({ label, title }: { label: string; title: string }) {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#0f0f12",
+          background: "#030810",
           color: "#fafafa",
           padding: "70px 78px",
           position: "relative",
@@ -28,12 +28,12 @@ export function renderOg({ label, title }: { label: string; title: string }) {
             width: 1200,
             height: 6,
             display: "flex",
-            background: "linear-gradient(90deg, #22d3ee, #818cf8)",
+            background: "linear-gradient(90deg, #65e7d1, #b6a8ff)",
           }}
         />
 
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ width: 10, height: 10, borderRadius: 999, background: "#22d3ee" }} />
+          <div style={{ width: 10, height: 10, borderRadius: 999, background: "#65e7d1" }} />
           <div style={{ fontSize: 21, letterSpacing: 3, color: "#9b9baa" }}>{label.toUpperCase()}</div>
         </div>
 
@@ -48,7 +48,7 @@ export function renderOg({ label, title }: { label: string; title: string }) {
           <div style={{ fontSize: 22, color: "#6f6f80", letterSpacing: 1 }}>
             {`${profile.roleChip} · ${profile.location}`}
           </div>
-          <div style={{ fontSize: 22, color: "#22d3ee", letterSpacing: 1 }}>bakul.app</div>
+          <div style={{ fontSize: 22, color: "#65e7d1", letterSpacing: 1 }}>bakul.app</div>
         </div>
       </div>
     ),

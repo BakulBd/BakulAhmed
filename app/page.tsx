@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import Counter from "@/components/counter";
 import { ArrowUpRight, Download, iconMap, type IconName } from "@/components/icons";
-import PhotoSwiper from "@/components/photo-swiper";
 import RichText from "@/components/rich-text";
 import MoodLine from "@/components/mood-line";
 import RoleRotator from "@/components/role-rotator";

@@ -9,8 +9,8 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     display: "standalone",
     // Matches the night mood, the default sky.
-    background_color: "#08090f",
-    theme_color: "#08090f",
+    background_color: "#030810",
+    theme_color: "#030810",
     categories: ["portfolio", "technology", "education"],
     icons: [
       { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },

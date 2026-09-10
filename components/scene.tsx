@@ -2,16 +2,37 @@
 
 import { useEffect, useRef } from "react";
 
+/** One full set of scene layers, painted for a single mood. */
+function Layers() {
+  return (
+    <>
+      <div className="scene__sky" />
+      {/* Grain sits directly over the sky, which is the only thing that bands.
+          Above the clouds its blend mode would force everything beneath it to
+          re-composite each frame — measured at 25 FPS on a desktop. */}
+      <div className="scene__grain" />
+      <div className="scene__celestial" />
+      <div className="scene__glow" />
+      <div className="scene__clouds" />
+      <div className="scene__clouds scene__clouds--low" />
+      <div className="scene__ridge scene__ridge--far" />
+      <div className="scene__ridge scene__ridge--near" />
+      <div className="scene__windows" />
+    </>
+  );
+}
+
 /**
  * The background: one scene, re-lit by [data-mood].
  *
- * Four stacked layers, all painted from mood variables so a mood change is a
- * colour grade rather than a swap — sky, horizon glow, a skyline silhouette,
- * and a fine grain. No images, so it costs nothing to download.
+ * The layers read animated custom properties, so a mood change grades them in
+ * place. Cross-fading two complete sets was tried and measured worse — it
+ * rasterises twice the gradient area — so the cost is kept down instead by
+ * making the expensive layers small: the sun is a compact element that moves,
+ * not a full-viewport gradient whose centre is animated.
  */
 export default function Scene() {
   const ref = useRef<HTMLDivElement>(null);
-
   // Slow parallax: the sky barely moves, the foreground moves most. Skipped
   // when motion is reduced or the pointer is coarse (phones pay for this).
   useEffect(() => {
@@ -41,18 +62,7 @@ export default function Scene() {
 
   return (
     <div ref={ref} aria-hidden="true" className="scene">
-      <div className="scene__sky" />
-      {/* Grain sits directly over the sky, which is the only thing that bands.
-          Above the clouds its blend mode would force everything beneath it to
-          re-composite each frame — measured at 25 FPS on a desktop. */}
-      <div className="scene__grain" />
-      <div className="scene__celestial" />
-      <div className="scene__glow" />
-      <div className="scene__clouds" />
-      <div className="scene__clouds scene__clouds--low" />
-      <div className="scene__ridge scene__ridge--far" />
-      <div className="scene__ridge scene__ridge--near" />
-      <div className="scene__windows" />
+      <Layers />
     </div>
   );
 }

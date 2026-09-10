@@ -37,7 +37,7 @@ function Timeline({
           <li key={`${entry.title}-${entry.period}`} className="relative">
             <span
               aria-hidden="true"
-              className="absolute -left-[1.7rem] top-2 size-2.5 rounded-full bg-gradient-to-r from-accent to-accent-2 ring-4 ring-[rgb(var(--panel-rgb))] md:-left-[2.2rem]"
+              className="absolute -left-[1.7rem] top-2 size-2.5 rounded-full grad-accent ring-4 ring-[rgb(var(--panel-rgb))] md:-left-[2.2rem]"
             />
             <h3 className="text-[1.05rem] font-semibold text-fg">{entry.title}</h3>
             <p className="mt-1 text-[0.85rem] text-accent">{entry.period}</p>
