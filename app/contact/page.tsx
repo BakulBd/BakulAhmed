@@ -1,15 +1,15 @@
-import type { Metadata } from "next";
 import Card from "@/components/card";
 import ContactForm from "@/components/contact-form";
 import { iconMap, type IconName } from "@/components/icons";
 import { PageHeading, SectionHeading } from "@/components/page-heading";
 import { contact, contactDetails, socials } from "@/lib/content";
+import { abs, breadcrumbNode, JsonLd, PERSON_ID, pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Contact",
-  description: "Get in touch with Bakul Ahmed about opportunities, projects and collaboration.",
-  alternates: { canonical: "/contact" },
-};
+  description: "Get in touch with Bakul Ahmed about internships, research, projects and collaboration.",
+  path: "/contact",
+});
 
 const email = contactDetails.find((item) => item.label === "Email")?.value ?? "";
 
@@ -34,7 +34,7 @@ export default function ContactPage() {
                 </span>
                 <span className="min-w-0">
                   <span className="eyebrow block">{item.label}</span>
-                  <span className="mt-1 block truncate text-[0.9rem] text-soft">{item.value}</span>
+                  <span className="mt-1 block text-[0.9rem] leading-snug text-soft [overflow-wrap:anywhere]">{item.value}</span>
                 </span>
               </>
             );
@@ -85,6 +85,17 @@ export default function ContactPage() {
         </SectionHeading>
         <ContactForm to={email} />
       </Card>
+      <JsonLd
+        graph={[
+          {
+            "@type": "ContactPage",
+            url: abs("/contact"),
+            name: "Contact Bakul Ahmed",
+            about: { "@id": PERSON_ID },
+          },
+          breadcrumbNode([{ name: "Contact", path: "/contact" }]),
+        ]}
+      />
     </>
   );
 }

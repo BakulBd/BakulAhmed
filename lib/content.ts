@@ -42,7 +42,14 @@ export const profile = {
    * square, which is what the frame expects — it is aspect-square, so
    * object-cover fits them edge to edge with no crop.
    */
-  photos: ["/pp/bakul1.jpeg", "/pp/bakul2.jpg"] as string[],
+  photos: ["/pp/bakul1.jpeg", "/bakul-ahmed.jpg"] as string[],
+  /**
+   * The canonical portrait: what structured data, link previews and Google
+   * should associate with the name. 1200px square (Google wants at least
+   * 696px for article images, and a square crop suits profile panels), with
+   * the name in the filename — image search reads that.
+   */
+  image: { src: "/bakul-ahmed.jpg", width: 1200, height: 1200 },
 } as const;
 
 export const contactDetails = [
@@ -247,6 +254,8 @@ export type Project = {
   imageAlt: string;
   repo?: string;
   demo?: string;
+  /** Slug of the blog post that writes this project up, if there is one. */
+  post?: string;
 };
 
 export const projects: Project[] = [
@@ -266,6 +275,7 @@ export const projects: Project[] = [
     image: "/work/web-game.svg",
     imageAlt: "Abstract preview: networked 3D game clients synchronising against an authoritative server.",
     repo: "https://github.com/BakulBd/web-game",
+    post: "multiplayer-netcode-prediction-reconciliation",
   },
   {
     slug: "epistemic-guard",
@@ -283,6 +293,7 @@ export const projects: Project[] = [
     image: "/work/epistemic-guard.svg",
     imageAlt: "Abstract preview: an editor pane with AI explanations and a code-repair task flow.",
     repo: "https://github.com/BakulBd/epistemic-guard",
+    post: "epistemic-debt-ai-generated-code",
   },
   {
     slug: "green-guardian",
@@ -301,6 +312,7 @@ export const projects: Project[] = [
     imageAlt: "Abstract preview: a proctoring and analytics dashboard with detection overlays.",
     repo: "https://github.com/BakulBd/GreenGuardian",
     demo: "https://green.bakul.app",
+    post: "serverless-ai-proctoring-webrtc-firestore",
   },
 ];
 
@@ -337,52 +349,16 @@ export const awards: Award[] = [
 ];
 
 /* ------------------------------------------------------------------ *
- * Blog — PLACEHOLDER. Replace with real posts, or remove "Blog" from nav.
+ * Blog — posts are Markdown files in content/blog (see lib/blog.ts).
  * ------------------------------------------------------------------ */
 
-export type Post = {
-  slug: string;
-  title: string;
-  excerpt: string;
-  date: string;
-  category: string;
-  image: string;
-  imageAlt: string;
-  href?: string;
-};
-
-export const posts: Post[] = [
-  {
-    slug: "authoritative-multiplayer",
-    title: "Keeping a 3D multiplayer game in sync without trusting the client",
-    excerpt:
-      "Notes on authoritative server state, interpolation and the physics reconciliation loop behind my Colyseus and Three.js game platform.",
-    date: "2026-06-12",
-    category: "Engineering",
-    image: "/work/web-game.svg",
-    imageAlt: "Networked 3D game clients synchronising against an authoritative server.",
-  },
-  {
-    slug: "understanding-ai-code",
-    title: "Do we actually understand the code the model wrote?",
-    excerpt:
-      "What building Epistemic Guard taught me about metacognition, code-repair tasks and measuring comprehension of AI-generated code.",
-    date: "2026-03-30",
-    category: "AI research",
-    image: "/work/epistemic-guard.svg",
-    imageAlt: "An editor pane with AI explanations and a code-repair task flow.",
-  },
-  {
-    slug: "shipping-green-guardian",
-    title: "Shipping an AI university platform that teachers will actually use",
-    excerpt:
-      "Proctoring, plagiarism detection and OCR are the easy part. The hard part is workflows people trust.",
-    date: "2026-01-18",
-    category: "Product",
-    image: "/work/green-guardian.svg",
-    imageAlt: "A proctoring and analytics dashboard with detection overlays.",
-  },
-];
+export const blog = {
+  title: "Blog",
+  heading: "Notes from the build",
+  description:
+    "Engineering notes by Bakul Ahmed on real-time multiplayer netcode, AI-assisted programming research, and shipping full-stack products.",
+  lead: "Write-ups of the things I build — how they work, what broke, and what I would do differently.",
+} as const;
 
 /* ------------------------------------------------------------------ *
  * Contact

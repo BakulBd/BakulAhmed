@@ -16,9 +16,13 @@ export default function PanelNav() {
   const [bar, setBar] = useState<{ left: number; width: number } | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
 
+  // A post at /blog/some-slug still belongs to the Blog tab.
+  const current =
+    nav.find((item) => item.href !== "/" && pathname.startsWith(`${item.href}/`))?.href ?? pathname;
+
   // The underline follows the pointer while hovering, then settles back on the
   // current page — so it previews where you are about to go.
-  const target = hovered ?? pathname;
+  const target = hovered ?? current;
 
   const measure = useCallback(() => {
     const list = listRef.current;
@@ -66,13 +70,13 @@ export default function PanelNav() {
           />
         )}
         {nav.map((item) => {
-          const active = pathname === item.href;
+          const active = current === item.href;
           return (
             <li key={item.href}>
               <Link
                 href={item.href}
                 data-href={item.href}
-                aria-current={active ? "page" : undefined}
+                aria-current={active ? (pathname === item.href ? "page" : "true") : undefined}
                 onMouseEnter={() => setHovered(item.href)}
                 onFocus={() => setHovered(item.href)}
                 onBlur={() => setHovered(null)}

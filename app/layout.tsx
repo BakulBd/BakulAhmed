@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import CodeCopy from "@/components/code-copy";
 import Constellation from "@/components/constellation";
 import IdentityRail from "@/components/identity-rail";
 import MoodProvider from "@/components/mood-provider";
@@ -10,8 +11,9 @@ import Scene from "@/components/scene";
 import ScrollReveal from "@/components/scroll-reveal";
 import SiteFooter from "@/components/site-footer";
 import Spotlight from "@/components/spotlight";
-import { awards, contactDetails, nav, profile, site, socials } from "@/lib/content";
+import { site } from "@/lib/content";
 import { moodScript } from "@/lib/mood";
+import { feedLink, JsonLd, personNode, websiteNode } from "@/lib/seo";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"], display: "swap" });
@@ -37,7 +39,16 @@ export const metadata: Metadata = {
     "GUCC General Secretary",
   ],
   category: "technology",
-  alternates: { canonical: "/" },
+  alternates: {
+    canonical: "/",
+    types: feedLink,
+  },
+  // Set these in the host's environment once Search Console / Bing Webmaster
+  // hand you a token; nothing is emitted while they are unset.
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION || undefined,
+    other: process.env.BING_SITE_VERIFICATION ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION } : undefined,
+  },
   // Phone numbers and addresses shouldn't be auto-linked over the design.
   formatDetection: { telephone: false, address: false, email: false },
   manifest: "/manifest.webmanifest",
@@ -50,7 +61,11 @@ export const metadata: Metadata = {
     locale: site.locale,
   },
   twitter: { card: "summary_large_image", title: `${site.name} — ${site.title}`, description: site.description },
-  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+  },
 };
 
 export const viewport: Viewport = {
@@ -62,64 +77,6 @@ export const viewport: Viewport = {
   initialScale: 1,
   // Required for env(safe-area-inset-*) to report anything on notched phones.
   viewportFit: "cover",
-};
-
-const personSchema = {
-  "@context": "https://schema.org",
-  "@type": "Person",
-  name: site.name,
-  jobTitle: profile.roleChip,
-  description: site.description,
-  url: site.url,
-  email: `mailto:${contactDetails[0].value}`,
-  telephone: contactDetails[1].value,
-  image: `${site.url}/opengraph-image`,
-  address: { "@type": "PostalAddress", addressLocality: "Dhaka", addressCountry: "BD" },
-  sameAs: socials.filter((s) => s.href.startsWith("http")).map((s) => s.href),
-  alumniOf: {
-    "@type": "CollegeOrUniversity",
-    name: "Green University of Bangladesh",
-    address: { "@type": "PostalAddress", addressLocality: "Dhaka", addressCountry: "BD" },
-  },
-  memberOf: { "@type": "Organization", name: "Green University Computer Club" },
-  knowsAbout: [
-    "Software Engineering",
-    "Full-Stack Web Development",
-    "Artificial Intelligence",
-    "Machine Learning",
-    "Natural Language Processing",
-    "Data Structures and Algorithms",
-  ],
-  award: awards.map((a) => `${a.title} — ${a.org}`),
-};
-
-const siteSchema = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: site.name,
-  url: site.url,
-  inLanguage: "en",
-  author: { "@type": "Person", name: site.name },
-};
-
-/** Tells search engines this site is one person's profile, not a company's. */
-const profileSchema = {
-  "@context": "https://schema.org",
-  "@type": "ProfilePage",
-  dateModified: new Date().toISOString().slice(0, 10),
-  mainEntity: { "@type": "Person", name: site.name, url: site.url },
-};
-
-/** The five tabs, so result pages can show the section structure. */
-const breadcrumbSchema = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  itemListElement: nav.map((item, i) => ({
-    "@type": "ListItem",
-    position: i + 1,
-    name: item.label,
-    item: new URL(item.href, site.url).toString(),
-  })),
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -174,10 +131,10 @@ Bakul{" "}
 
           <ScrollReveal />
           <Spotlight />
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }} />
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(profileSchema) }} />
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+          <CodeCopy />
+          {/* The person and the site, on every page. Pages add their own nodes
+              (ProfilePage on the home route, BlogPosting on a post). */}
+          <JsonLd graph={[personNode, websiteNode]} />
         </MoodProvider>
       </body>
     </html>

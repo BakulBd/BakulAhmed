@@ -803,24 +803,109 @@
   margin-left: calc(var(--disc) * -3);
   margin-top: calc(var(--disc) * -3);
   border-radius: 999px;
+  /*
+   * The sun as it actually looks: a defined disc, white-hot at the centre and
+   * shading to its colour at the limb, wrapped in light that falls off in
+   * stages — a tight bloom hugging the edge, then a wide atmospheric halo.
+   * The old version was one soft gradient, which read as a blurred blob.
+   *
+   * --moon closes the white core and the bloom down, so at night the same
+   * stack becomes the moon's faint glow and the ::before draws the moon.
+   */
+  --sun-core: color-mix(in oklab, #fffdf6 calc((1 - var(--moon)) * 78%), var(--sun-color));
   background:
     radial-gradient(
       circle at 50% 50%,
-      var(--sun-color) 0,
-      /* The sun is a light source and its edge should bleed; the moon is a
-         solid body and its limb is famously sharp. These stops close up as
-         --moon rises, so the crisp ::before below defines the edge instead of
-         a soft ring bleeding past it. */
-      var(--sun-color) calc(var(--disc) * (0.42 + var(--moon) * 0.06)),
-      color-mix(in oklab, var(--sun-color) 55%, transparent) calc(var(--disc) * (0.5 + var(--moon) * 0.005)),
-      transparent calc(var(--disc) * (0.62 - var(--moon) * 0.11))
+      var(--sun-core) 0,
+      color-mix(in oklab, var(--sun-core), var(--sun-color)) calc(var(--disc) * 0.2),
+      var(--sun-color) calc(var(--disc) * (0.4 + var(--moon) * 0.08)),
+      color-mix(in oklab, var(--sun-color) 88%, transparent) calc(var(--disc) * 0.49),
+      transparent calc(var(--disc) * (0.53 + var(--moon) * 0.01))
     ),
+    /* Bloom: the bright rim of light that makes the disc look luminous. */
     radial-gradient(
       circle at 50% 50%,
-      color-mix(in oklab, var(--sun-color) calc(var(--sun-halo) * 55%), transparent) 0,
+      color-mix(in oklab, var(--sun-color) calc(var(--sun-halo) * (1 - var(--moon) * 0.7) * 80%), transparent) calc(var(--disc) * 0.45),
+      color-mix(in oklab, var(--sun-color) calc(var(--sun-halo) * (1 - var(--moon) * 0.7) * 30%), transparent) calc(var(--disc) * 0.72),
+      transparent calc(var(--disc) * 1.15)
+    ),
+    /* Atmospheric halo, wide and faint. */
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in oklab, var(--sun-color) calc(var(--sun-halo) * 45%), transparent) 0,
+      color-mix(in oklab, var(--sun-color) calc(var(--sun-halo) * 12%), transparent) calc(var(--disc) * 1.6),
       transparent calc(var(--disc) * 3)
     );
   translate: 0 var(--p2, 0px);
+}
+
+/*
+ * Corona: soft, uneven shafts of light around the sun, turning very slowly and
+ * breathing a little. Both motions are `rotate` and `scale` — compositor-only,
+ * so they cost no repaint (rotating the gradient's own angle, as the card rings
+ * once did, repaints every frame). Irregular lobe widths keep it from reading
+ * as a cartoon starburst, and the mask keeps the disc itself clean.
+ */
+.scene__celestial::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  pointer-events: none;
+  background: conic-gradient(
+    from 8deg,
+    transparent 0deg,
+    color-mix(in oklab, var(--sun-color) 55%, transparent) 9deg,
+    transparent 22deg,
+    transparent 41deg,
+    color-mix(in oklab, var(--sun-color) 40%, transparent) 52deg,
+    transparent 66deg,
+    color-mix(in oklab, var(--sun-color) 50%, transparent) 97deg,
+    transparent 111deg,
+    transparent 140deg,
+    color-mix(in oklab, var(--sun-color) 35%, transparent) 151deg,
+    transparent 170deg,
+    color-mix(in oklab, var(--sun-color) 55%, transparent) 204deg,
+    transparent 219deg,
+    transparent 246deg,
+    color-mix(in oklab, var(--sun-color) 42%, transparent) 259deg,
+    transparent 275deg,
+    color-mix(in oklab, var(--sun-color) 50%, transparent) 311deg,
+    transparent 327deg,
+    transparent 360deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent calc(var(--disc) * 0.5), #000 calc(var(--disc) * 0.62), transparent calc(var(--disc) * 2.3));
+  mask: radial-gradient(circle, transparent calc(var(--disc) * 0.5), #000 calc(var(--disc) * 0.62), transparent calc(var(--disc) * 2.3));
+  opacity: calc((1 - var(--moon)) * var(--sun-halo) * 0.42);
+  animation:
+    sun-turn 180s linear infinite,
+    sun-breathe 9s ease-in-out infinite alternate;
+}
+
+/* The moon has no corona; do not keep a hidden layer turning all night. */
+[data-mood="night"] .scene__celestial::after {
+  animation: none;
+}
+
+@keyframes sun-turn {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes sun-breathe {
+  from {
+    scale: 0.96;
+  }
+  to {
+    scale: 1.05;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene__celestial::after {
+    animation: none;
+  }
 }
 
 /*
@@ -1170,6 +1255,33 @@ html[data-js] [data-reveal][data-revealed="true"] {
   transform: none;
 }
 
+/*
+ * Where the browser can drive an animation from an element's own position in
+ * the viewport, it does the reveal instead of the script. The difference is
+ * the first paint: the script path hides everything until hydration, so the
+ * largest heading or image on screen stayed invisible for as long as the
+ * JavaScript took — Lighthouse measured that as the page's LCP. Here anything
+ * already on screen at load is simply shown, and only what scrolls in later
+ * fades up.
+ */
+@supports (animation-timeline: view()) {
+  html[data-js] [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 55%;
+  }
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
 /* ------------------------------------------------------------------ *
  * Generated portrait scenes (components/generated-scene.tsx)
  * ------------------------------------------------------------------ */
@@ -1438,6 +1550,359 @@ html[data-js] [data-reveal][data-revealed="true"] {
   }
 }
 
+/* ------------------------------------------------------------------ *
+ * Blog
+ * ------------------------------------------------------------------ */
+
+/* Reading progress. Driven by the page's scroll position entirely in CSS
+   (a scroll-driven animation), so a post needs no script to show it. Where
+   scroll timelines are unsupported the bar is simply absent. */
+.read-progress {
+  display: none;
+}
+
+@supports (animation-timeline: scroll()) {
+  .read-progress {
+    display: block;
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 55;
+    height: 3px;
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+    background-image: linear-gradient(in oklch 90deg, var(--accent), var(--accent-2));
+    box-shadow: 0 0 12px color-mix(in oklab, var(--accent) 60%, transparent);
+    animation: read-progress linear both;
+    animation-timeline: scroll(root block);
+  }
+}
+
+@keyframes read-progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* A category label sitting on a cover image — glass, so it reads over any art. */
+.post-chip {
+  z-index: 1;
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg);
+  background-color: rgb(var(--panel-rgb) / 0.78);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.search:focus-within {
+  border-color: color-mix(in oklab, var(--accent) 55%, var(--border));
+}
+
+.search input::-webkit-search-cancel-button {
+  filter: grayscale(1) brightness(1.6);
+}
+
+.post-cover {
+  box-shadow: var(--shadow);
+}
+
+.toc summary {
+  list-style: none;
+}
+
+.toc summary::-webkit-details-marker {
+  display: none;
+}
+
+.toc summary::after {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 1.6px solid currentColor;
+  border-bottom: 1.6px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.3s var(--ease);
+}
+
+.toc[open] summary::after {
+  transform: translateY(2px) rotate(225deg);
+}
+
+/* ---- Article typography ----
+ * A 1.8 line height and a measure capped near 70 characters: long-form text
+ * on glass needs more air than interface copy does. Every colour here is a
+ * surface token, so prose passes the same contrast gate as the rest of the
+ * page in every mood. */
+.prose {
+  max-width: 70ch;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--fg-soft);
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 768px) {
+  .prose {
+    font-size: 1.04rem;
+  }
+}
+
+.prose > * + * {
+  margin-top: 1.25em;
+}
+
+.prose h2,
+.prose h3 {
+  position: relative;
+  color: var(--fg);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  scroll-margin-top: 1.5rem;
+}
+
+.prose h2 {
+  margin-top: 2.4em;
+  font-size: 1.45em;
+}
+
+.prose h3 {
+  margin-top: 2em;
+  font-size: 1.18em;
+}
+
+.prose h2 + *,
+.prose h3 + * {
+  margin-top: 0.8em;
+}
+
+/* The # link appears in the gutter on hover, where it costs no layout. */
+.prose .anchor {
+  position: absolute;
+  right: 100%;
+  padding-right: 0.4em;
+  color: var(--accent);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.2s var(--ease);
+}
+
+.prose h2:hover .anchor,
+.prose h3:hover .anchor {
+  opacity: 0.8;
+}
+
+.prose a:not(.anchor) {
+  /* Inline padding grows the tap target past 24px without moving the line. */
+  padding-block: 0.25em;
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--accent) 40%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.25s var(--ease);
+}
+
+.prose a:not(.anchor):hover {
+  text-decoration-color: var(--accent);
+}
+
+.prose strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.3em;
+}
+
+.prose ul {
+  list-style: disc;
+}
+
+.prose ol {
+  list-style: decimal;
+}
+
+.prose li + li {
+  margin-top: 0.45em;
+}
+
+.prose li::marker {
+  color: var(--accent);
+}
+
+.prose blockquote {
+  padding: 0.9em 1.2em;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 0.8rem 0.8rem 0;
+  background-color: rgb(var(--tile-rgb) / var(--tile-a));
+  color: var(--fg-soft);
+}
+
+.prose hr {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin-block: 2.4em;
+}
+
+.prose :not(pre) > code {
+  padding: 0.15em 0.42em;
+  border-radius: 0.4rem;
+  border: 1px solid var(--border-soft);
+  background-color: rgb(var(--tile-rgb) / var(--tile-a));
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+}
+
+.prose .figure img {
+  border-radius: 0.9rem;
+  border: 1px solid var(--border);
+}
+
+.prose figcaption {
+  margin-top: 0.6em;
+  font-size: 0.85em;
+  color: var(--fg-muted);
+  text-align: center;
+}
+
+/* Tables scroll inside their own box on a phone rather than widening the page. */
+.prose .table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background-color: rgb(var(--tile-rgb) / var(--tile-a));
+}
+
+.prose table {
+  width: 100%;
+  /* Below this a three-column table wraps one word per line; scrolling its
+     own box reads better. */
+  min-width: 30rem;
+  border-collapse: collapse;
+  font-size: 0.88em;
+  line-height: 1.55;
+}
+
+.prose th {
+  text-align: left;
+  font-size: 0.78em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  font-weight: 600;
+}
+
+.prose th,
+.prose td {
+  padding: 0.7em 1em;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+
+.prose tr:last-child td {
+  border-bottom: 0;
+}
+
+.prose td code {
+  white-space: nowrap;
+}
+
+/* ---- Code blocks ----
+ * Highlighted at build time against CSS variables (lib/blog.ts), so the syntax
+ * colours are re-lit with the mood: keywords take the accent, functions the
+ * second accent, and strings a lightened blend of the pair. All of them are
+ * light tints over a near-black well, so every token clears AA. */
+.prose .code {
+  --shiki-foreground: var(--fg-soft);
+  --shiki-background: transparent;
+  --shiki-token-keyword: var(--accent);
+  --shiki-token-function: var(--accent-2);
+  --shiki-token-string: color-mix(in oklch, var(--accent) 45%, var(--fg));
+  --shiki-token-string-expression: color-mix(in oklch, var(--accent) 45%, var(--fg));
+  --shiki-token-constant: color-mix(in oklch, var(--accent-2) 60%, var(--fg));
+  --shiki-token-parameter: var(--fg);
+  --shiki-token-comment: var(--fg-muted);
+  --shiki-token-punctuation: color-mix(in oklab, var(--fg-soft) 75%, var(--fg-muted));
+  --shiki-token-link: var(--accent);
+
+  margin-block: 1.6em;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background-color: color-mix(in oklab, rgb(var(--panel-rgb)) 72%, #000);
+  box-shadow: 0 1px 0 0 color-mix(in oklab, var(--fg) 6%, transparent) inset;
+}
+
+.prose .code__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0;
+  padding: 0.3rem 0.4rem 0.3rem 1rem;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--fg-muted);
+}
+
+.code__copy {
+  min-height: 1.75rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 0.5rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--fg-muted);
+  transition: color 0.2s var(--ease), background-color 0.2s var(--ease);
+}
+
+.code__copy:hover,
+.code__copy[data-copied] {
+  color: var(--accent);
+  background-color: var(--panel-hover);
+}
+
+.prose pre {
+  margin: 0;
+  padding: 1rem 1.15rem 1.1rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.7;
+  tab-size: 2;
+  background: transparent !important;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+@media (min-width: 768px) {
+  .prose pre {
+    font-size: 0.85rem;
+  }
+}
+
+/* Names the current season in the footer, straight from [data-season]. */
+.season-name::after {
+  color: var(--accent);
+}
+[data-season="spring"] .season-name::after { content: " · spring"; }
+[data-season="summer"] .season-name::after { content: " · summer"; }
+[data-season="autumn"] .season-name::after { content: " · autumn"; }
+[data-season="winter"] .season-name::after { content: " · winter"; }
+
 /* Gradient text used for the hero name. */
 .gradient-text {
   /*
@@ -1463,6 +1928,7 @@ html[data-js] [data-reveal][data-revealed="true"] {
   html[data-js] [data-reveal] {
     opacity: 1;
     transform: none;
+    animation: none !important;
   }
 
   .rotator__item {

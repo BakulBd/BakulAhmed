@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import Counter from "@/components/counter";
@@ -7,29 +6,35 @@ import RichText from "@/components/rich-text";
 import MoodLine from "@/components/mood-line";
 import RoleRotator from "@/components/role-rotator";
 import { SectionHeading } from "@/components/page-heading";
+import PostCard from "@/components/post-card";
+import { getPosts } from "@/lib/blog";
+import { JsonLd, personNode, pageMetadata, WEBSITE_ID } from "@/lib/seo";
 import {
   about,
   contactDetails,
   profile,
   projects,
+  site,
   services,
   skills,
   stats,
   versions,
 } from "@/lib/content";
 
-export const metadata: Metadata = {
-  title: { absolute: "Bakul Ahmed — Computer Science Engineer & Technology Builder" },
-  description:
-    "Computer Science Engineering undergraduate (CGPA 3.96/4.00) at Green University of Bangladesh. Full-stack developer, AI/ML explorer and General Secretary of the Green University Computer Club.",
-  alternates: { canonical: "/" },
-};
+export const metadata = pageMetadata({
+  title: `${site.name} — ${site.title}`,
+  absoluteTitle: true,
+  description: site.description,
+  path: "/",
+  type: "profile",
+});
 
 const email = contactDetails.find((c) => c.label === "Email")?.href ?? "#";
 const marquee = skills.flatMap((g) => g.items);
 const featured = projects[0];
 
 export default function HomePage() {
+  const latest = getPosts().slice(0, 2);
   return (
     <>
       {/* ---- Hero. Identity lives in the rail, so this leads with the work. ---- */}
@@ -166,6 +171,7 @@ export default function HomePage() {
             <Image
               src={featured.image}
               alt={featured.imageAlt}
+              unoptimized={featured.image.endsWith(".svg")}
               fill
               sizes="(min-width: 768px) 50vw, 92vw"
               className="object-cover transition-transform duration-700 ease-[cubic-bezier(.22,.68,.28,1)] group-hover:scale-105"
@@ -178,16 +184,52 @@ export default function HomePage() {
             <h3 className="mt-2 text-[1.4rem] font-semibold text-fg">{featured.name}</h3>
             <p className="mt-1 text-[0.85rem] text-accent">{featured.subtitle}</p>
             <p className="mt-3 text-[0.9rem] leading-[1.75] text-muted">{featured.summary}</p>
-            <Link
-              href="/portfolio"
-              className="mt-5 inline-flex min-h-[2rem] items-center gap-1.5 text-[0.85rem] text-soft transition-colors duration-300 hover:text-accent"
-            >
-              All projects
-              <ArrowUpRight width={14} height={14} />
-            </Link>
+            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-1">
+              {featured.post && (
+                <Link
+                  href={`/blog/${featured.post}`}
+                  className="inline-flex min-h-[2rem] items-center gap-1.5 text-[0.85rem] font-medium text-accent transition-opacity duration-300 hover:opacity-80"
+                >
+                  Read how it works
+                  <ArrowUpRight width={14} height={14} />
+                </Link>
+              )}
+              <Link
+                href="/portfolio"
+                className="inline-flex min-h-[2rem] items-center gap-1.5 text-[0.85rem] text-soft transition-colors duration-300 hover:text-accent"
+              >
+                All projects
+                <ArrowUpRight width={14} height={14} />
+              </Link>
+            </div>
           </div>
         </article>
       </section>
+
+      {/* ---- Latest writing ---- */}
+      {latest.length > 0 && (
+        <section aria-labelledby="writing-heading" className="mt-14 md:mt-20">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <SectionHeading>
+              <span id="writing-heading">Latest writing</span>
+            </SectionHeading>
+            <Link
+              href="/blog"
+              className="inline-flex min-h-[2rem] shrink-0 items-center gap-1.5 text-[0.85rem] text-soft transition-colors duration-300 hover:text-accent"
+            >
+              All posts
+              <ArrowUpRight width={14} height={14} />
+            </Link>
+          </div>
+          <ul className="grid gap-4 sm:grid-cols-2 md:gap-5">
+            {latest.map((post, i) => (
+              <li key={post.slug}>
+                <PostCard post={post} delay={i * 70} headingLevel={3} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* ---- Other versions ---- */}
       <section aria-labelledby="versions-heading" className="mt-14 md:mt-20">
@@ -245,6 +287,24 @@ export default function HomePage() {
           </a>
         </div>
       </section>
+
+      {/* Tells search engines this page is one person's profile — the page
+          Google can show with the portrait for a search on the name. */}
+      <JsonLd
+        graph={[
+          {
+            "@type": "ProfilePage",
+            "@id": `${site.url.replace(/\/$/, "")}/#profile`,
+            url: site.url,
+            name: `${site.name} — ${site.title}`,
+            inLanguage: "en",
+            isPartOf: { "@id": WEBSITE_ID },
+            dateModified: new Date().toISOString().slice(0, 10),
+            mainEntity: personNode,
+            primaryImageOfPage: personNode.image,
+          },
+        ]}
+      />
     </>
   );
 }

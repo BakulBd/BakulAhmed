@@ -131,7 +131,8 @@ export default function PhotoSwiper({
                 alt={i === 0 ? "Bakul Ahmed" : ""}
                 fill
                 sizes="(min-width: 1120px) 320px, (min-width: 640px) 45vw, 80vw"
-                priority={i === 0}
+                preload={i === 0}
+                fetchPriority={i === 0 ? "high" : "low"}
                 className="object-cover object-center"
               />
             ) : (

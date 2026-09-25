@@ -15,7 +15,7 @@ import { existsSync } from "node:fs";
 
 const BASE = process.env.BASE ?? "http://localhost:3000";
 const MOODS = ["dawn", "day", "dusk", "night"];
-const ROUTES = ["/", "/resume", "/portfolio", "/blog", "/contact"];
+const ROUTES = ["/", "/resume", "/portfolio", "/blog", "/contact", "/blog/multiplayer-netcode-prediction-reconciliation"];
 // Widths worth checking: the narrowest phone still in use, the common phones,
 // tablet portrait and landscape, laptop, and the two desktop breakpoints.
 const WIDTHS = [320, 360, 390, 414, 540, 768, 834, 1024, 1180, 1280, 1440, 1920, 2560];

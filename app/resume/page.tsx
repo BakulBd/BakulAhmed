@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
 import Card from "@/components/card";
 import { Award as AwardIcon, Calendar, Download } from "@/components/icons";
 import { PageHeading, SectionHeading } from "@/components/page-heading";
+import { breadcrumbNode, JsonLd, pageMetadata } from "@/lib/seo";
 import { awards, education, experience, profile, skills, type TimelineEntry } from "@/lib/content";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Resume",
-  description: "Education, experience and technical skills of Bakul Ahmed.",
-  alternates: { canonical: "/resume" },
-};
+  description:
+    "Resume of Bakul Ahmed — B.Sc. in Computer Science and Engineering at Green University of Bangladesh (CGPA 3.96), General Secretary of GUCC, with full-stack and AI/ML skills.",
+  path: "/resume",
+});
 
 function Timeline({
   id,
@@ -127,6 +128,7 @@ export default function ResumePage() {
           ))}
         </ul>
       </Card>
+      <JsonLd graph={[breadcrumbNode([{ name: "Resume", path: "/resume" }])]} />
     </>
   );
 }

@@ -69,6 +69,17 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Portraits, project art and the CV. Not fingerprinted, so not
+        // immutable — a day fresh, then revalidated in the background, which
+        // keeps repeat visits instant while a replaced photo still lands.
+        source: "/:file(bakul-ahmed.jpg|Bakul_Ahmed_CV.pdf)",
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+      },
+      {
+        source: "/:dir(pp|work)/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+      },
+      {
         // The contact endpoint must never be cached by a CDN.
         source: "/api/:path*",
         headers: [{ key: "Cache-Control", value: "no-store, max-age=0" }],

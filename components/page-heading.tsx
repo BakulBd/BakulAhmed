@@ -1,9 +1,19 @@
 import type { ReactNode } from "react";
 
 /** Page title with the gradient rule beneath it. */
-export function PageHeading({ children, lead }: { children: ReactNode; lead?: string }) {
+export function PageHeading({
+  children,
+  lead,
+  eyebrow,
+}: {
+  children: ReactNode;
+  lead?: string;
+  /** A small label above the title, for pages whose h1 is more than the tab name. */
+  eyebrow?: ReactNode;
+}) {
   return (
     <header className="mb-10 md:mb-14" data-reveal>
+      {eyebrow && <p className="eyebrow mb-4">{eyebrow}</p>}
       <h1 className="text-[clamp(2.2rem,6vw,3.6rem)] font-bold leading-[1.05] tracking-[-0.035em] text-fg">
         {children}
       </h1>

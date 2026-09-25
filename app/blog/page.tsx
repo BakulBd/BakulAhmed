@@ -1,88 +1,79 @@
-import type { Metadata } from "next";
-import Image from "next/image";
+import BlogBrowser from "@/components/blog-browser";
 import Card from "@/components/card";
 import { PageHeading } from "@/components/page-heading";
-import { posts } from "@/lib/content";
+import PostCard from "@/components/post-card";
+import { getPosts } from "@/lib/blog";
+import { blog, site } from "@/lib/content";
+import { abs, breadcrumbNode, JsonLd, PERSON_ID, pageMetadata, WEBSITE_ID } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Blog",
-  description: "Notes on software engineering, machine learning and building useful products.",
-  alternates: { canonical: "/blog" },
-};
-
-const formatter = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
+export const metadata = pageMetadata({
+  title: blog.title,
+  description: blog.description,
+  path: "/blog",
+  keywords: ["Bakul Ahmed blog", "netcode", "Colyseus", "WebRTC", "AI-assisted programming", "Next.js"],
 });
 
 export default function BlogPage() {
+  const posts = getPosts();
+  // A post marked `featured` is pinned; otherwise the newest leads.
+  const lead = posts.find((p) => p.featured) ?? posts[0];
+
   return (
     <>
-      <PageHeading lead="Notes on the things I build — multiplayer sync, model evaluation, and shipping software people actually use.">Blog</PageHeading>
+      <PageHeading
+        eyebrow={
+          <>
+            {blog.title} · {posts.length} {posts.length === 1 ? "post" : "posts"} ·{" "}
+            {/* A plain anchor: the feed is XML, not a page to client-navigate to. */}
+            <a href="/feed.xml" className="inline-flex min-h-7 items-center text-accent hover:opacity-80">
+              RSS
+            </a>
+          </>
+        }
+        lead={blog.lead}
+      >
+        {blog.heading}
+      </PageHeading>
 
-      <Card>
-      <ul className="grid gap-5 sm:grid-cols-2">
-        {posts.map((post, i) => {
-          const content = (
-            <>
-              <div className="relative aspect-[16/10] overflow-hidden border-b border-line-soft bg-panel">
-                <Image
-                  src={post.image}
-                  alt={post.imageAlt}
-                  fill
-                  sizes="(min-width: 640px) 45vw, 90vw"
-                  className="object-cover transition-transform duration-700 ease-[cubic-bezier(.22,.68,.28,1)] group-hover:scale-105"
-                />
-              </div>
-              <div className="p-5">
-                <p className="eyebrow">
-                  {post.category} ·{" "}
-                  <time dateTime={post.date}>{formatter.format(new Date(post.date))}</time>
-                </p>
-                <h2 className="mt-2 text-[1.05rem] font-semibold leading-snug text-fg transition-colors duration-300 group-hover:text-accent">
-                  {post.title}
-                </h2>
-                <p className="mt-2 text-[0.85rem] leading-[1.7] text-muted">{post.excerpt}</p>
-              </div>
-            </>
-          );
+      {lead && (
+        <section aria-label="Featured post" className="mb-5">
+          <PostCard post={lead} feature priority />
+        </section>
+      )}
 
-          return (
-            <li
-              key={post.slug}
-              className="tile spotlight shine shine--hover group overflow-hidden transition-colors duration-300"
-              data-reveal
-              style={{ "--reveal-delay": `${i * 70}ms` } as React.CSSProperties}
-            >
-              {post.href ? (
-                <a href={post.href} className="block">
-                  {content}
-                </a>
-              ) : (
-                content
-              )}
-            </li>
-          );
-        })}
-      </ul>
+      {posts.length > 1 && (
+        <Card delay={80}>
+          <BlogBrowser posts={posts} pinned={lead?.slug} />
+        </Card>
+      )}
 
-      <p className="mt-8 text-[0.85rem] text-muted">
-        Write-ups of these projects are in progress. In the meantime the code is
-        on{" "}
-        <a
-          href="https://github.com/BakulBd"
-          target="_blank"
-          rel="noopener noreferrer"
-          // inline-block + padding so the tap target clears 24px; as a bare
-          // inline link its box was only the 20px line height
-          className="inline-block py-1 text-accent underline hover:opacity-80"
-        >
-          GitHub
-        </a>
-        .
-      </p>
-      </Card>
+      <JsonLd
+        graph={[
+          {
+            "@type": "Blog",
+            "@id": `${abs("/blog")}#blog`,
+            url: abs("/blog"),
+            name: `${blog.title} — ${site.name}`,
+            description: blog.description,
+            inLanguage: "en",
+            isPartOf: { "@id": WEBSITE_ID },
+            author: { "@id": PERSON_ID },
+            publisher: { "@id": PERSON_ID },
+            blogPost: posts.map((p) => ({
+              "@type": "BlogPosting",
+              "@id": `${abs(`/blog/${p.slug}`)}#article`,
+              url: abs(`/blog/${p.slug}`),
+              headline: p.title,
+              description: p.description,
+              datePublished: p.date,
+              dateModified: p.updated ?? p.date,
+              image: abs(`/blog/${p.slug}/opengraph-image`),
+              author: { "@id": PERSON_ID },
+            })),
+          },
+          breadcrumbNode([{ name: blog.title, path: "/blog" }]),
+        ]}
+      />
     </>
   );
 }

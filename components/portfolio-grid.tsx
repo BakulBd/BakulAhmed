@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ArrowUpRight, GitHub } from "./icons";
 import type { Project } from "@/lib/content";
@@ -50,6 +51,7 @@ export default function PortfolioGrid({ projects }: { projects: Project[] }) {
                 <Image
                   src={project.image}
                   alt={project.imageAlt}
+                  unoptimized={project.image.endsWith(".svg")}
                   fill
                   sizes="(min-width: 640px) 45vw, 90vw"
                   className="object-cover transition-transform duration-700 ease-[cubic-bezier(.22,.68,.28,1)] group-hover:scale-105"
@@ -107,8 +109,17 @@ export default function PortfolioGrid({ projects }: { projects: Project[] }) {
                   ))}
                 </ul>
 
-                {(project.repo || project.demo) && (
+                {(project.repo || project.demo || project.post) && (
                   <div className="mt-auto flex flex-wrap items-center gap-x-5 gap-y-2 pt-4">
+                    {project.post && (
+                      <Link
+                        href={`/blog/${project.post}`}
+                        className="inline-flex min-h-[2rem] items-center gap-1.5 text-[0.82rem] font-medium text-accent transition-opacity duration-300 hover:opacity-80"
+                      >
+                        Read the write-up
+                        <span className="sr-only"> — {project.name}</span>
+                      </Link>
+                    )}
                     {project.repo && (
                       <a
                         href={project.repo}

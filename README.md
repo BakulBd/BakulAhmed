@@ -31,7 +31,7 @@ touched to add a project, a role, a service, a post or a link.
 | `about` / `services` | About page prose and "What I'm Doing" cards |
 | `education` / `experience` / `skills` | Resume page |
 | `projects` | Portfolio grid (category drives the filter chips) |
-| `posts` | Blog page |
+| `blog` | Blog page heading and SEO description (posts themselves live in `content/blog`) |
 | `contact` | Contact page heading |
 | `versions` | Links to the Classic and Digital portfolios |
 
@@ -45,8 +45,9 @@ projects, skills and awards are all real. Two things still need your attention:
 1. **`socials` → LinkedIn** is marked `VERIFY`. The CV shows the label "Bakul" but not
    the URL, so it currently guesses `linkedin.com/in/bakulbd`. Correct it if that is
    not your handle.
-2. **`posts`** are sample blog articles. Give each a real `href`, or remove `Blog`
-   from `nav`.
+2. **The three blog posts** in `content/blog` were drafted from your repositories'
+   READMEs and docs. Read them, adjust anything that isn't how you'd put it, and set
+   each `date` to when you actually publish.
 
 Optional:
 
@@ -95,6 +96,41 @@ nothing. Rate limiting is a coarse in-memory 5-per-10-minutes per IP: it resets 
 redeploy and is per-instance, and it reads `x-forwarded-for`, so a self-hosted deploy
 needs a reverse proxy that sets it — otherwise every visitor shares one bucket. Put a
 real limiter in front if it ever matters.
+
+## Blog
+
+Posts are Markdown files in [`content/blog`](content/blog); the filename is the URL
+slug. Add a file, rebuild, and it appears on `/blog`, in the sitemap and in the RSS
+feed with its own Open Graph card. Frontmatter is documented at the top of
+[`lib/blog.ts`](lib/blog.ts):
+
+```md
+---
+title: Keeping a 3D multiplayer game in sync
+description: One or two sentences — this is the search-result snippet.
+date: 2026-06-12
+updated: 2026-07-01        # optional
+category: Engineering      # drives the filter chips
+tags: [netcode, colyseus]
+cover: /work/web-game.svg
+coverAlt: What the cover shows.
+featured: true             # optional — pins it to the top of /blog
+draft: false               # optional — drafts show in `npm run dev` only
+---
+```
+
+- **Everything happens at build time.** Markdown is rendered by `marked`, code is
+  highlighted by Shiki, and every post is static HTML — no highlighter, parser or
+  Markdown runtime ships to the browser.
+- **Code colours follow the mood.** Shiki emits CSS variables instead of a fixed
+  theme, so keywords take the mood's accent and functions its second accent.
+- **Per post:** reading time, a table of contents (from `##`/`###`), heading
+  anchors, copy buttons on code, share links, author card, previous/next and
+  related posts (by shared tags), and a reading-progress bar done entirely in CSS
+  with a scroll-driven animation.
+- **`/blog`** pins the featured (or newest) post, then offers category chips and
+  search over the rest, all client-side over what is already on the page.
+- **`/feed.xml`** is RSS 2.0 with full post content.
 
 ## Checks
 
@@ -229,6 +265,13 @@ warmth collects at the horizon**.
   own radius, leaving it 2px under the switcher at 768px. It is now anchored to
   the same container as the chrome, with bounds that subtract its own radius, and
   it shrinks twice on the way down to 320px where only 43px of bar is free.
+- **The sun is drawn like the sun.** A defined disc, white-hot at the centre and
+  shading to the mood's colour at the limb, inside a tight bloom and a wide
+  atmospheric halo — it used to be one soft gradient, which read as a blurred
+  blob. Around it, a faint corona of uneven light shafts turns once every three
+  minutes and breathes slightly. Both motions are `rotate` and `scale`, which the
+  compositor handles without repainting; the corona fades out as `--moon` rises,
+  stops animating at night, and never moves under reduced motion.
 - **Warmth lives at the horizon**, not the sky: a peach glow at dawn, amber at dusk,
   deep blue at night. Each mood also sets `--shadow-tint`, so panels cast a warm
   shadow at dusk and a cold one at night.
@@ -328,11 +371,11 @@ Every animation is built from scratch — no animation library ships to the brow
 | `components/constellation.tsx` | Sparse particle field on a canvas, density scaled to viewport area, paused while the tab is hidden. |
 | `components/counter.tsx` | Counts each statistic up the first time it scrolls into view. |
 | `components/spotlight.tsx` | One delegated pointer listener writes `--mx/--my` onto the hovered card, so cards stay server-rendered. |
-| `components/route-transition.tsx` | Re-keys on navigation so panel content settles in on each tab change. One animation on the wrapper only — staggering the first child made it fade twice. |
+| `components/route-transition.tsx` | Re-keys on navigation so panel content settles in on each tab change — but not on the first load, where fading the page in from opacity 0 delayed LCP. One animation on the wrapper only — staggering the first child made it fade twice. |
 | `components/panel-nav.tsx` (hover) | The underline follows the pointer to preview where you are about to go, then settles back on the current page. |
 | `.sent` (globals.css) | After a message sends, the tick draws itself inside an expanding ring and the copy rises in behind it. |
 | `components/mood-provider.tsx` | Owns the mood, persists it, and wraps light↔dark flips in a View Transition. |
-| `[data-reveal]` | Fade-up on scroll, driven by a single `IntersectionObserver` that is **re-armed on every route change** — a client navigation replaces the DOM, and unobserved nodes stay hidden by CSS (a test guards this). |
+| `[data-reveal]` | Fade-up on scroll. Where the browser supports `animation-timeline: view()` this is pure CSS, and anything already on screen at load paints immediately — the script path hid it until hydration, which Lighthouse measured as the LCP. Elsewhere a single `IntersectionObserver` does it, **re-armed on every route change** so client-navigated content never stays hidden. |
 
 Under `prefers-reduced-motion: reduce` the constellation is not rendered at all, the
 portrait holds one static frame, the caret disappears, counters show their final value
@@ -365,15 +408,28 @@ deploying, since canonical URLs, Open Graph and the sitemap all derive from it.
 
 ## SEO
 
-- Per-route `title`, `description` and canonical URL.
-- A generated Open Graph image per route (`/opengraph-image`, `/resume/opengraph-image`,
-  …) from one shared template in [`lib/og.tsx`](lib/og.tsx).
-- Four JSON-LD nodes: `Person` (real contact details, `alumniOf`, `memberOf`,
-  `knowsAbout`, `award`), `WebSite`, `ProfilePage` and `BreadcrumbList`.
-- `sitemap.xml` and `robots.txt` driven by `NEXT_PUBLIC_SITE_URL`. Sitemap URLs match
-  the canonical tags **exactly** — including the bare origin for the home route, with
-  no trailing slash (a test asserts this).
-- A web app manifest, an SVG favicon and a generated 180px `apple-icon`.
+- Per-route `title`, `description`, canonical URL **and Open Graph block**, from
+  `pageMetadata()` in [`lib/seo.tsx`](lib/seo.tsx). Routes used to inherit the root
+  layout's `og:url` and `og:title`, so every shared link unfurled as the home page.
+- **The portrait is the canonical image.** `public/bakul-ahmed.jpg` (1200px square,
+  named for the person) is the `Person.image` in structured data, the
+  `primaryImageOfPage` of the home route's `ProfilePage`, and an image-sitemap entry
+  on the home URL — which is what Google needs to show the photo for a search on the
+  name. Replace that file to change the photo everywhere.
+- A generated Open Graph card per route and per post, from one template in
+  [`lib/og.tsx`](lib/og.tsx), set in Geist (vendored in `assets/fonts`). Site cards
+  carry the portrait large; article cards put it in a byline.
+- One JSON-LD graph linked by `@id`: `Person` and `WebSite` on every page, plus
+  `ProfilePage` (home), `Blog` + `BlogPosting` (blog), `ItemList` of
+  `SoftwareSourceCode` (portfolio), `ContactPage`, and a real per-page
+  `BreadcrumbList` (it used to list all five tabs as a single trail).
+- `sitemap.xml` includes every post with its real `lastmod`, `robots.txt`, and an
+  RSS `<link>` on every page. Sitemap URLs match the canonical tags **exactly** —
+  including the bare origin for the home route, with no trailing slash.
+- `GOOGLE_SITE_VERIFICATION` / `BING_SITE_VERIFICATION` emit ownership meta tags when
+  set. After deploying, verify in Search Console and submit `/sitemap.xml`.
+- A web app manifest with 192/512 PNG and maskable icons, an SVG favicon in the
+  site palette, and a generated 180px `apple-icon`.
 
 ## Accessibility
 
@@ -463,6 +519,22 @@ rate limiting and secret containment, security headers, canonical/sitemap agreem
 JSON-LD shape, reveal visibility after client-side navigation, and a responsive sweep
 across 13 widths.
 
+## Lighthouse
+
+Mobile profile (simulated slow 4G, 4x CPU) against the production build:
+
+| Route | Performance | Accessibility | Best practices | SEO |
+| --- | --- | --- | --- | --- |
+| `/` | 93–95 | 100 | 100 | 100 |
+| `/resume`, `/contact` | 94–95 | 100 | 100 | 100 |
+| `/blog`, `/portfolio` | 94–95 | 100 | 100 | 100 |
+| `/blog/<post>` | 92–95 | 100 | 100 | 100 |
+
+CLS is 0 everywhere. Above-the-fold images use `preload` + `fetchPriority="high"`
+(Next 16 deprecated `priority`, which no longer emits the hint), and SVG art skips
+the image optimiser. `experimental.inlineCss` was measured and made no difference,
+so it is off.
+
 ## Deploying
 
 Deploys to Vercel (or any Node host) with no build configuration. Before the first
@@ -475,6 +547,17 @@ deploy:
    will only reach the Resend account owner.
 3. Add your CV at `public/Bakul_Ahmed_CV.pdf` (already present) and photos in
    `public/photos/`.
+
+After the first deploy:
+
+4. In [Google Search Console](https://search.google.com/search-console), add the
+   domain, put the token in `GOOGLE_SITE_VERIFICATION`, redeploy, verify, then
+   submit `https://<your-domain>/sitemap.xml`. Use **URL Inspection → Request
+   indexing** on the home page and each post to speed up the first crawl.
+5. Check the structured data with the
+   [Rich Results Test](https://search.google.com/test/rich-results) (home should
+   show *Profile page*, posts *Article*) and preview link cards with
+   [opengraph.xyz](https://www.opengraph.xyz).
 
 The in-memory rate limiter reads `x-forwarded-for`. Vercel sets it; a self-hosted
 deploy needs a reverse proxy that does too, or every visitor shares one bucket.

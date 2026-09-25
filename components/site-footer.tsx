@@ -9,6 +9,11 @@ export default function SiteFooter() {
           <p className="text-sm text-soft">
             © {new Date().getFullYear()} {site.name}
           </p>
+          {/* The season is set on <html> before first paint; CSS names it, so
+              this needs no script and can never disagree with the sky. */}
+          <p className="mt-1.5 text-[0.8rem] text-muted">
+            The sky follows your local time<span className="season-name" />
+          </p>
           <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.8rem] text-muted">
             <span>Other versions:</span>
             {versions.map((v) => (
