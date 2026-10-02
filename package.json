@@ -1,0 +1,33 @@
+{
+  "name": "portfolio3",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "contrast": "node scripts/contrast.mjs",
+    "verify": "npm run contrast && npm run build",
+    "visual": "node scripts/visual.mjs",
+    "skyline": "node scripts/skyline.mjs",
+    "icons": "node scripts/icons.mjs",
+    "contrast:pixels": "node scripts/pixel-contrast.mjs"
+  },
+  "dependencies": {
+    "marked": "^18.0.14",
+    "next": "16.3.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "resend": "^6.27.0",
+    "shiki": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "playwright-core": "^1.63.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
