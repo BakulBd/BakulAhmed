@@ -1,0 +1,47 @@
+import type { ReactNode } from "react";
+
+/** Page title with the gradient rule beneath it. */
+export function PageHeading({
+  children,
+  lead,
+  eyebrow,
+}: {
+  children: ReactNode;
+  lead?: string;
+  /** A small label above the title, for pages whose h1 is more than the tab name. */
+  eyebrow?: ReactNode;
+}) {
+  return (
+    <header className="mb-10 md:mb-14" data-reveal>
+      {eyebrow && <p className="eyebrow mb-4">{eyebrow}</p>}
+      <h1 className="text-[clamp(2.2rem,6vw,3.6rem)] font-bold leading-[1.05] tracking-[-0.035em] text-fg">
+        {children}
+      </h1>
+      <span className="rule mt-5" aria-hidden="true" />
+      {lead && <p className="mt-6 max-w-2xl text-[0.98rem] leading-[1.8] text-muted">{lead}</p>}
+    </header>
+  );
+}
+
+/**
+ * Secondary heading used inside a page. `rule` runs a hairline from the title
+ * to the edge of its column — a chapter line that gives a long page its rhythm
+ * — and draws it in as the heading arrives.
+ */
+export function SectionHeading({
+  children,
+  className = "",
+  rule = false,
+}: {
+  children: ReactNode;
+  className?: string;
+  rule?: boolean;
+}) {
+  return (
+    <h2
+      className={`text-[1.35rem] font-semibold tracking-[-0.02em] text-fg md:text-[1.6rem] ${rule ? "section-title" : ""} ${className}`}
+    >
+      {children}
+    </h2>
+  );
+}
