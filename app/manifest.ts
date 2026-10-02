@@ -1,0 +1,35 @@
+import type { MetadataRoute } from "next";
+import { site } from "@/lib/content";
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: `${site.name} — ${site.title}`,
+    short_name: site.name,
+    description: site.description,
+    // A stable identity for the installed app, independent of start_url.
+    id: "/",
+    start_url: "/",
+    scope: "/",
+    display: "standalone",
+    // Matches the night mood, the default sky.
+    background_color: "#030810",
+    theme_color: "#030810",
+    categories: ["portfolio", "technology", "education"],
+    icons: [
+      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icons/maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: "/apple-icon.png", sizes: "180x180", type: "image/png", purpose: "any" },
+    ],
+    shortcuts: [
+      { name: "Resume", url: "/resume" },
+      { name: "Portfolio", url: "/portfolio" },
+      { name: "Blog", url: "/blog" },
+      { name: "Contact", url: "/contact" },
+    ],
+    lang: "en",
+    dir: "ltr",
+    orientation: "portrait-primary",
+  };
+}
