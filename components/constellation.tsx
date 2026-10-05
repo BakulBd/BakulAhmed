@@ -9,7 +9,7 @@ import { MASTS, NEAR_TILE } from "@/lib/skyline-masts";
  *   - a still field of background stars that twinkle, in three temperatures
  *   - the drifting constellation, its stars linked when they pass close
  *   - shooting stars, now and then, on a dark enough night
- *   - fireflies over the rooftops, flashing the way real ones do
+ *   - fireflies among the buildings, flashing the way real ones do
  *   - birds crossing in loose V's by day
  *   - whatever the season drops: snow, leaves, petals, or summer motes rising
  *   - red aviation lights on the city's masts, blinking out of step
@@ -138,8 +138,23 @@ export default function Constellation() {
     let nextFlock = 6 + Math.random() * 10;
     let nextMeteor = 3 + Math.random() * 6;
 
+    /*
+     * Where the sky ends. The canvas sits in front of the whole scene, so
+     * anything drawn below the landscape's highest point lands ON the city:
+     * stars and the drifting constellation used to scatter across rooftops
+     * and hillsides. The highest points, measured from the generated shapes:
+     * the hills peak 21.1vh up (scene__hills: 62% of 44vh, path top 54/240),
+     * the far city's tallest mast 6vh + 122px; a few pixels' margin above.
+     */
+    let horizon = 0;
+    /* The near skyline: fireflies live among it, from its rooftops (its
+       tallest mast is 166px up) down to the street. */
+    const STREET = 6;
+    const ROOFS = 172;
+
     const seed = () => {
       const area = width * height;
+      horizon = height - Math.max(height * 0.211, height * 0.06 + 122) - 8;
       // The Milky Way's line across the sky — the same one .scene__galaxy
       // draws (centred 47.8vw, 30.8vh, turned 27deg), so a share of the stars
       // gather along it and the band is resolved, not just a glow.
@@ -155,14 +170,14 @@ export default function Constellation() {
           const across = (Math.random() + Math.random() + Math.random() - 1.5) * spread;
           const x = bandX + along * Math.cos(tilt) + across * Math.sin(tilt);
           const y = bandY - along * Math.sin(tilt) + across * Math.cos(tilt);
-          if (x > 0 && x < width && y > 0 && y < height * 0.82) return { x, y };
+          if (x > 0 && x < width && y > 0 && y < horizon) return { x, y };
         }
         return null;
       };
       stars = Array.from({ length: Math.round(Math.min(260, area / 6000) * density) }, () => {
         // Denser towards the top of the sky, the way the eye reads depth.
         const banded = Math.random() < 0.32 ? onBand() : null;
-        const y = banded?.y ?? Math.pow(Math.random(), 1.6) * height * 0.82;
+        const y = banded?.y ?? Math.pow(Math.random(), 1.6) * horizon;
         return {
           x: banded?.x ?? Math.random() * width,
           y,
@@ -176,19 +191,22 @@ export default function Constellation() {
 
       dots = Array.from({ length: Math.round(Math.min(64, area / 28000) * density) }, () => ({
         x: Math.random() * width,
-        y: Math.random() * height,
+        y: Math.random() * horizon,
         vx: (Math.random() - 0.5) * 0.14,
         vy: (Math.random() - 0.5) * 0.14,
         r: Math.random() * 1.1 + 0.6,
         phase: Math.random() * Math.PI * 2,
       }));
 
-      // Fireflies keep low, over the rooftops, with a few strays higher up.
-      flies = Array.from({ length: Math.round(Math.min(34, width / 46) * density) }, () => {
+      // Fireflies live among the buildings — down by the street, between the
+      // blocks, up to the rooftops — never out in the open sky, where they
+      // used to drift at half the screen's height and read as stars.
+      flies = Array.from({ length: Math.round(Math.min(32, width / 48) * density) }, () => {
         const z = 0.55 + Math.random() * 0.95;
         return {
           x: Math.random() * width,
-          y: height * (Math.random() < 0.85 ? 0.58 + Math.random() * 0.4 : 0.3 + Math.random() * 0.3),
+          // Weighted towards the street, where real ones keep to the grass.
+          y: height - STREET - Math.pow(Math.random(), 1.5) * (ROOFS - STREET),
           heading: Math.random() * Math.PI * 2,
           turn: 0,
           speed: (0.12 + Math.random() * 0.2) * z,
@@ -245,12 +263,17 @@ export default function Constellation() {
       glint: [] as Sprite[],
       dot: null as Sprite | null,
       fly: null as Sprite | null,
+      bloom: null as Sprite | null,
       snow: null as Sprite | null,
       snow2: null as Sprite | null,
       head: null as Sprite | null,
       beacon: null as Sprite | null,
     };
     let spriteKey = "";
+    // The season's firefly density, eased towards here rather than animated
+    // in CSS (see --firefly-season): a fifth of the way per sample, so a
+    // season change thins or thickens them over about a second.
+    let fireflySeason = -1;
 
     const buildSprites = () => {
       const key = `${paint.particle}|${paint.fallColour}|${paint.fallColour2}`;
@@ -276,6 +299,9 @@ export default function Constellation() {
           g.fillRect(0, 0, px, px);
           return c;
         })(),
+        // The light a flash throws into the air around it: wide and faint,
+        // drawn only while the firefly is lit.
+        bloom: glow(96, dpr, `rgb(${FIREFLY})`, [[0, 0.55], [0.18, 0.3], [0.5, 0.08], [1, 0]]),
         snow: glow(8, dpr, paint.fallColour, [[0, 1], [0.4, 0.9], [0.75, 0.3], [1, 0]]),
         snow2: glow(8, dpr, paint.fallColour2, [[0, 1], [0.4, 0.9], [0.75, 0.3], [1, 0]]),
         head: glow(10, dpr, "#ffffff", [[0, 1], [0.3, 0.6], [1, 0]]),
@@ -288,12 +314,15 @@ export default function Constellation() {
       const cs = getComputedStyle(root);
       const num = (name: string) => Number(cs.getPropertyValue(name)) || 0;
       const str = (name: string, fallback: string) => cs.getPropertyValue(name).trim() || fallback;
+      const season = num("--firefly-season");
+      fireflySeason = fireflySeason < 0 || still ? season : fireflySeason + (season - fireflySeason) * 0.2;
       paint = {
         particle: str("--particle", "#b5e3d7"),
         // Follows --stars, which the mood transition eases in last, so the
         // stars come out gradually rather than appearing all at once.
         stars: num("--stars"),
-        fireflies: num("--fireflies"),
+        // The hour's fireflies, thinned by the time of year: none in winter.
+        fireflies: num("--fireflies") * fireflySeason,
         birds: num("--birds"),
         bird: str("--bird-color", "#1b2b3a"),
         fall: num("--fall"),
@@ -311,12 +340,19 @@ export default function Constellation() {
       const t = now / 1000;
       ctx.clearRect(0, 0, width, height);
       const { stars: night, fireflies, birds, fall } = paint;
+      // The near skyline's scroll parallax, so what lives among the buildings
+      // moves with them. An inline style: reading it costs no style recalc.
+      const lift = parseFloat(scene?.style.getPropertyValue("--p3") || "0") || 0;
+      // Stars dim towards the horizon, through the thicker, hazier air low
+      // over a city — the band just above the rooftops holds the faintest.
+      const low = height * 0.16;
 
       // --- background stars: still, twinkling ---
       if (night > 0.01) {
         for (const s of stars) {
           const tw = 0.55 + 0.45 * Math.sin(t * s.rate + s.phase);
-          ctx.globalAlpha = night * (s.bright ? 0.9 : 0.5) * tw;
+          const air = 0.3 + 0.7 * Math.min(1, (horizon - s.y) / low);
+          ctx.globalAlpha = night * (s.bright ? 0.9 : 0.5) * tw * air;
           const sprite = s.bright ? sprites.glint[s.tint] : sprites.star[s.tint];
           const size = s.bright ? 12 + s.r * 4 : 3 + s.r * 3;
           ctx.drawImage(sprite, s.x - size / 2, s.y - size / 2, size, size);
@@ -329,7 +365,7 @@ export default function Constellation() {
           d.x += d.vx * dt;
           d.y += d.vy * dt;
           if (d.x < 0 || d.x > width) d.vx *= -1;
-          if (d.y < 0 || d.y > height) d.vy *= -1;
+          if (d.y < 0 || d.y > horizon) d.vy *= -1;
         }
         ctx.strokeStyle = paint.particle;
         ctx.lineWidth = 0.7;
@@ -379,10 +415,12 @@ export default function Constellation() {
         m.x += m.vx * dt;
         m.y += m.vy * dt;
         const p = m.age / m.life;
-        if (p >= 1) meteor = null;
+        // Burns out in the sky: one that would have fallen into the city
+        // fades over its last 60px above the rooftops instead.
+        if (p >= 1 || m.y >= horizon) meteor = null;
         else {
           // Brightens, then burns out; the tail grows as it gathers speed.
-          const a = Math.sin(Math.PI * p) * night;
+          const a = Math.sin(Math.PI * p) * night * Math.min(1, (horizon - m.y) / 60);
           const v = Math.hypot(m.vx, m.vy);
           const tail = m.len * Math.min(1, p * 2.2);
           const tx = m.x - (m.vx / v) * tail;
@@ -530,9 +568,18 @@ export default function Constellation() {
         }
       }
 
-      // --- fireflies, over the rooftops ---
+      // --- fireflies, among the buildings ---
       if (fireflies > 0.01 && sprites.fly) {
+        const top = height - ROOFS;
+        const street = height - STREET;
+        // Light adds to light: two flashes crossing brighten each other, as
+        // they do to the eye, rather than one painting over the other.
+        ctx.globalCompositeOperation = "lighter";
         for (const f of flies) {
+          // Flash: a smooth pulse at the start of each period, dark after.
+          const p = ((t + f.offset) / f.period) % 1;
+          let flash = p < 0.24 ? Math.sin((Math.PI * p) / 0.24) : 0;
+          if (f.double && p > 0.32 && p < 0.48) flash = Math.max(flash, 0.8 * Math.sin((Math.PI * (p - 0.32)) / 0.16));
           if (!still) {
             // A smoothed random walk: nudge the turn rate, not the position,
             // so the path curves the way an insect's does.
@@ -541,22 +588,32 @@ export default function Constellation() {
             f.bob += 0.03 * dt;
             f.x += Math.cos(f.heading) * f.speed * dt;
             f.y += (Math.sin(f.heading) * f.speed * 0.55 + Math.sin(f.bob) * 0.08) * dt;
+            // The J: a firefly swoops upward while it flashes and sinks back
+            // while dark, so each flash is drawn as a short rising stroke.
+            f.y += (flash > 0 ? -flash * 0.3 * f.z : 0.045) * dt;
             if (f.x < -12) f.x = width + 12;
             if (f.x > width + 12) f.x = -12;
-            if (f.y < height * 0.26) f.heading = Math.abs(f.heading) % Math.PI;
-            if (f.y > height + 8) f.heading = -Math.abs(f.heading) % Math.PI;
+            // Kept among the buildings: turned back down at the rooftops and
+            // back up at the street.
+            if (f.y < top) f.heading = Math.abs(f.heading) % Math.PI;
+            if (f.y > street) f.heading = -Math.abs(f.heading) % Math.PI;
+            f.y = Math.min(street + 4, Math.max(top - 10, f.y));
           }
-          // Flash: a smooth pulse at the start of each period, dark after.
-          const p = ((t + f.offset) / f.period) % 1;
-          let flash = p < 0.24 ? Math.sin((Math.PI * p) / 0.24) : 0;
-          if (f.double && p > 0.32 && p < 0.48) flash = Math.max(flash, 0.8 * Math.sin((Math.PI * (p - 0.32)) / 0.16));
+          const y = f.y + lift;
           // Between flashes a firefly still glows faintly — enough to follow
-          // it across the rooftops, the way the eye does on a summer night.
+          // it between the blocks, the way the eye does on a summer night.
           const level = still ? 0.7 : 0.2 + 0.8 * flash;
-          ctx.globalAlpha = level * fireflies * Math.min(1, 0.55 + f.z * 0.4);
+          const near = Math.min(1, 0.55 + f.z * 0.4);
+          if (flash > 0.05 && sprites.bloom) {
+            ctx.globalAlpha = flash * fireflies * near * 0.24;
+            const bloom = 46 + f.z * 34;
+            ctx.drawImage(sprites.bloom, f.x - bloom / 2, y - bloom / 2, bloom, bloom);
+          }
+          ctx.globalAlpha = level * fireflies * near;
           const size = 16 + f.z * 15;
-          ctx.drawImage(sprites.fly, f.x - size / 2, f.y - size / 2, size, size);
+          ctx.drawImage(sprites.fly, f.x - size / 2, y - size / 2, size, size);
         }
+        ctx.globalCompositeOperation = "source-over";
       }
 
       ctx.globalAlpha = 1;

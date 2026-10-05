@@ -10,6 +10,7 @@
     "verify": "npm run contrast && npm run build",
     "visual": "node scripts/visual.mjs",
     "skyline": "node scripts/skyline.mjs",
+    "clouds": "node scripts/clouds.mjs",
     "icons": "node scripts/icons.mjs",
     "contrast:pixels": "node scripts/pixel-contrast.mjs"
   },

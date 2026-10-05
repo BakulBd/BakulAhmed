@@ -290,10 +290,18 @@ warmth collects at the horizon**.
   itself shifted down a few pixels, leaves just the top edge of every roof — lit rose
   at dawn, warm at noon, fire at dusk, silver under the moon. In winter the edge
   thickens and whitens into snow on the roofs.
-- **Clouds are cumulus**, not smears: flat shaded bases, rounded towers, a lit top,
-  drawn once as an SVG tile and used as both mask and greyscale shading multiplied
-  over the hour's cloud colour. They loop seamlessly (the layer moves exactly one
-  tile), the high deck slower than the low haze.
+- **Clouds are cumulus**, not smears: each of the six grown from its own seed
+  ([`scripts/clouds.mjs`](scripts/clouds.mjs)) — a row of cells on one flat
+  condensation level, a dome leaning off-centre, a tower rising out of it, and
+  the shade inside the base. Drawn once as an SVG tile and used as both mask
+  and greyscale shading multiplied over the hour's cloud colour. They loop
+  seamlessly (the layer moves exactly one tile), the high deck slower than the
+  low haze, which is frayed stratus streaks rather than flat discs.
+- **Windows at every hour.** By day the same panes are glass holding the sky
+  (`--glass`), pale azure at noon and lilac at dawn; as dusk falls each one
+  warms from that reflection into lamplight. The street level sinks into its
+  own shadow. The city planes are solid — at 92–94% opacity every building
+  behind showed through as a ghost inside the towers in front.
 - **The portrait stands in the same light.** A soft-light wash from the side the sun
   or moon is on, in its colour — warm from the left at dawn, fire at dusk, cool and
   dim at night. Subtle on purpose: it is a face.
@@ -342,6 +350,18 @@ warmth collects at the horizon**.
   seconds of faint glow, some double-flashing; lime-gold, which is the colour real
   ones are. They wander with a smoothed random turn and bob as they go, and nearer
   ones are larger and brighter. Full at night, a third at dusk, none by day.
+  They live **among the buildings** — street level up to the rooftops, moving
+  with the skyline's parallax — where they used to drift at half the screen's
+  height and read as stars. Each flash is a short upward swoop (the "J" real
+  ones fly) and throws a faint bloom into the air around it, additively, so two
+  crossing flashes brighten each other. **The season sets how many**: all of
+  them in the monsoon summer, about half in spring, a third in autumn, none in
+  winter.
+- **The sky ends at the horizon.** The canvas sits in front of the city, so
+  stars, the drifting constellation and shooting stars are kept above the
+  landscape's highest point (hills 21.1vh, far masts 6vh + 122px) — they used to
+  land on rooftops — and stars dim towards it, through the thicker air low over
+  a city.
 - **Depth.** Snow, leaves and petals each carry a depth that sets size, speed and
   brightness together, which is what makes snow read as falling through space. Leaves
   and petals tumble — turned by their spin, squashed by the cosine of their flip — and
@@ -759,6 +779,7 @@ npm run contrast   # palette, contrast, sky geometry and the sky clock
 npm run verify     # contrast gate + production build
 npm run visual     # real layout and pixels (needs a running server)
 npm run skyline    # regenerate the city and high-sky shapes (app/scene-art.css)
+npm run clouds     # regenerate the cumulus and horizon-haze tiles (in app/globals.css)
 npm run icons      # regenerate every icon from the mark (needs Chrome)
 npm run contrast -- --table   # worst-case ratio of every text role, per mood
 npm run contrast:pixels       # contrast on real pixels (needs a running server)
