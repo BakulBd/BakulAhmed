@@ -72,6 +72,36 @@ export function Award(p: P) {
   return (<svg {...base} {...p}><g {...stroke}><circle cx="12" cy="9" r="5.5" /><path d="m8.5 13.8-1.3 6.7 4.8-2.6 4.8 2.6-1.3-6.7" /></g></svg>);
 }
 
+/** A laurel wreath: two sprigs meeting under an open crown. */
+export function Laurel(p: P) {
+  return (
+    <svg {...base} {...p}>
+      <g {...stroke}>
+        <path d="M8.2 20.2C4.6 18 3 14.6 3.4 10.4M15.8 20.2c3.6-2.2 5.2-5.6 4.8-9.8" />
+        <path d="M4.2 15.6c1.6-.1 2.8.6 3.4 1.9-1.5.3-2.8-.3-3.4-1.9ZM3.4 11.8c1.4.4 2.2 1.4 2.3 2.8-1.4-.3-2.3-1.2-2.3-2.8ZM3.8 7.9c1.1.8 1.5 2 1.2 3.3-1.1-.7-1.6-1.8-1.2-3.3ZM19.8 15.6c-1.6-.1-2.8.6-3.4 1.9 1.5.3 2.8-.3 3.4-1.9ZM20.6 11.8c-1.4.4-2.2 1.4-2.3 2.8 1.4-.3 2.3-1.2 2.3-2.8ZM20.2 7.9c-1.1.8-1.5 2-1.2 3.3 1.1-.7 1.6-1.8 1.2-3.3Z" />
+        <path d="m12 5.2 1.1 2.3 2.5.3-1.8 1.7.5 2.5-2.3-1.2-2.3 1.2.5-2.5-1.8-1.7 2.5-.3L12 5.2Z" />
+      </g>
+    </svg>
+  );
+}
+/** A seal with a tick — "this can be checked". */
+export function Verified(p: P) {
+  return (
+    <svg {...base} {...p}>
+      <g {...stroke}>
+        <path d="M12 2.8 14.3 4.5l2.8-.2.9 2.7 2.4 1.5-.8 2.7.8 2.7-2.4 1.5-.9 2.7-2.8-.2L12 21.2l-2.3-1.7-2.8.2-.9-2.7-2.4-1.5.8-2.7-.8-2.7L6 6.8l.9-2.7 2.8.2L12 2.8Z" />
+        <path d="m8.8 12.2 2.2 2.2 4.3-4.6" />
+      </g>
+    </svg>
+  );
+}
+export function FileText(p: P) {
+  return (<svg {...base} {...p}><g {...stroke}><path d="M6.5 3.5h7.6l4.4 4.4v10.6a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z" /><path d="M14 3.7V8h4.3M8.5 13h7M8.5 16.5h4.5" /></g></svg>);
+}
+export function Gallery(p: P) {
+  return (<svg {...base} {...p}><g {...stroke}><rect x="3" y="4.5" width="18" height="15" rx="2.5" /><path d="M3 8.5h18M6 6.5h.01M8.5 6.5h.01" /><path d="m7 16.5 3.2-3.6 2.3 2.4 1.6-1.7 2.9 2.9" /></g></svg>);
+}
+
 /* Navigation: one glyph per page, drawn to sit together in the tab bar. */
 export function NavAbout(p: P) {
   return (<svg {...base} {...p}><g {...stroke}><circle cx="12" cy="8.4" r="3.6" /><path d="M5 20.2a7 7 0 0 1 14 0" /></g></svg>);
@@ -103,6 +133,7 @@ export const iconMap = {
   github: GitHub, linkedin: LinkedIn, facebook: Facebook, instagram: Instagram,
   navAbout: NavAbout, navResume: NavResume, navPortfolio: NavPortfolio, navBlog: NavBlog, navContact: NavContact,
   code: Code, spark: Spark, puzzle: Puzzle, users: Users, globe: Globe, award: Award, codeforces: Codeforces,
+  laurel: Laurel, verified: Verified, file: FileText, gallery: Gallery,
 } as const;
 
 export type IconName = keyof typeof iconMap;

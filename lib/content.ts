@@ -13,10 +13,10 @@ export const site = {
    */
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://bakul.tech",
   name: "Bakul Ahmed",
-  title: "Computer Science Engineer & Technology Builder",
-  tagline: "I build software, explore AI, and lead technology-driven initiatives.",
+  title: "Software Engineer & AI Researcher",
+  tagline: "I build real-time software, research how people work with AI, and lead technology initiatives.",
   description:
-    "Bakul Ahmed — CSE undergraduate (CGPA 3.96) at Green University of Bangladesh: full-stack developer, AI/ML explorer and General Secretary of GUCC, Dhaka.",
+    "Bakul Ahmed — software engineer and AI researcher in Dhaka. CSE undergraduate (CGPA 3.96) at Green University of Bangladesh and General Secretary of GUCC.",
   locale: "en_US",
   /**
    * When the site's own pages last changed meaningfully. The sitemap's lastmod
@@ -24,12 +24,12 @@ export const site = {
    * that moves on every deploy teaches search engines to ignore it. Bump it
    * when you edit the copy.
    */
-  updated: "2026-10-01",
+  updated: "2026-10-17",
 } as const;
 
 export const profile = {
   name: "Bakul Ahmed",
-  role: "Computer Science Engineer & Technology Builder",
+  role: "Software Engineer & AI Researcher",
   roleChip: "General Secretary, GUCC",
   /** Cycled by the animated hero headline. */
   roles: [
@@ -373,6 +373,89 @@ export const awards: Award[] = [
     org: "Codeforces & online judges",
     detail: "Solved 100+ programming problems across multiple online judges; Codeforces rating 800+.",
     year: "Ongoing",
+  },
+];
+
+/* ------------------------------------------------------------------ *
+ * Recognition — independent, third-party acknowledgement of this site.
+ *
+ * Every entry links to its issuer so a visitor can check it, and `kind`
+ * keeps the wording honest: an "award" was judged and conferred; a
+ * "listing" is inclusion in a curated gallery and is never called a win.
+ * ------------------------------------------------------------------ */
+
+export type Recognition = {
+  id: string;
+  kind: "award" | "listing";
+  /** What the card calls it, e.g. "Award" or "Website gallery listing". */
+  kindLabel: string;
+  title: string;
+  subtitle: string;
+  issuer: string;
+  issuerUrl: string;
+  /** ISO date, shown long-form and used for <time dateTime>. */
+  date: string;
+  /** One sentence in the issuer's own terms. */
+  summary: string;
+  /** The issuer's public page for this entry — the thing that verifies it. */
+  verifyUrl: string;
+  verifyLabel: string;
+  facts: { label: string; value: string; mono?: boolean }[];
+  image: { src: string; width: number; height: number; alt: string };
+  /** A local copy of the document, when the issuer provides one. */
+  document?: { href: string; label: string };
+};
+
+export const recognitions: Recognition[] = [
+  {
+    id: "guru-of-the-day",
+    kind: "award",
+    kindLabel: "Award · Certificate of Recognition",
+    title: "Guru of the Day",
+    subtitle: "Web Guru Awards — Flagship Awards",
+    issuer: "Web Guru Awards",
+    issuerUrl: "https://www.webguruawards.com",
+    date: "2026-10-14",
+    summary: "Recognised for outstanding website design, creativity and digital experience.",
+    verifyUrl: "https://www.webguruawards.com/certificate/gotd/bakul-ahmed-software-engineer-ai-researcher",
+    verifyLabel: "Verify on Web Guru Awards",
+    facts: [
+      { label: "Certificate no.", value: "14102026", mono: true },
+      { label: "Awarded", value: "14 October 2026" },
+    ],
+    image: {
+      src: "/recognition/guru-of-the-day-certificate.webp",
+      width: 640,
+      height: 906,
+      alt: "Web Guru Awards certificate: Guru of the Day, awarded to Bakul Ahmed — Software Engineer & AI Researcher, 14 October 2026, certificate number 14102026.",
+    },
+    document: {
+      href: "/recognition/guru-of-the-day-certificate-14102026.pdf",
+      label: "Certificate (PDF)",
+    },
+  },
+  {
+    id: "bestcss",
+    kind: "listing",
+    kindLabel: "Website gallery listing",
+    title: "Featured on BestCSS",
+    subtitle: "BestCSS website gallery — Portfolio",
+    issuer: "BestCSS",
+    issuerUrl: "https://www.bestcss.in",
+    date: "2026-10-12",
+    summary: "Listed in the BestCSS website gallery — a curated showcase, not a judged award.",
+    verifyUrl: "https://www.bestcss.in/user/detail/BakulAhmed-55220",
+    verifyLabel: "View the listing on BestCSS",
+    facts: [
+      { label: "Listed", value: "12 October 2026" },
+      { label: "Gallery", value: "Portfolio" },
+    ],
+    image: {
+      src: "/recognition/bestcss-listing.webp",
+      width: 960,
+      height: 563,
+      alt: "The bakul.tech home page as shown in its BestCSS gallery listing: the night sky, the profile card and the hero.",
+    },
   },
 ];
 

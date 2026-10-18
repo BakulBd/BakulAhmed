@@ -3,6 +3,10 @@
    into this stylesheet rather than imported from the layout: as its own chunk
    it was a second render-blocking request, and first paint waited for it. */
 @import "./scene-art.css";
+/* Awards & recognition cards. */
+@import "./recognition.css";
+/* The home page's opening screen, and icons that answer back. */
+@import "./polish.css";
 
 /* ------------------------------------------------------------------ *
  * Registered mood properties
@@ -137,6 +141,14 @@
 @media (min-width: 1536px) {
   :root {
     --shell: 1340px;
+  }
+}
+
+/* Big monitors: the page grows with them rather than floating small in the
+   middle (scripts/contrast.mjs mirrors these widths for the sky geometry). */
+@media (min-width: 1800px) {
+  :root {
+    --shell: 1440px;
   }
 }
 
@@ -678,9 +690,33 @@
     -webkit-backdrop-filter: blur(22px) saturate(1.35);
     border: 1px solid var(--border);
     border-radius: 1.25rem;
-    box-shadow: var(--shadow);
+    /* The glass catches the hour: its top edge takes the light the rooftops
+       take (--rim-color: rose at dawn, warm at noon, fire at dusk, silver
+       under the moon — stepped through a change, so it repaints a handful
+       of times). A warm "bounce" of city light at the foot was tried too and
+       dropped: as a blurred inset shadow it cost a sixth of a frame at the
+       95th percentile of every change of light, and as a gradient far more
+       (an image read through a custom property is redrawn every frame). The
+       1px line alone measured free. */
+    box-shadow:
+      var(--shadow),
+      inset 0 1px 0 color-mix(in oklab, var(--rim-color) 30%, transparent);
     transition: background-color var(--mood-fade) var(--ease),
       border-color var(--mood-fade) var(--ease);
+  }
+
+  /* Asked for less transparency: solid surfaces, no frosted glass. */
+  @media (prefers-reduced-transparency: reduce) {
+    .panel,
+    .dock {
+      background-color: rgb(var(--panel-rgb));
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    .tile {
+      background-color: rgb(var(--tile-rgb));
+    }
   }
 
   /* Where blur is unavailable, trade translucency for opacity. */
@@ -1349,22 +1385,19 @@
   }
 }
 
-/* The chapter line draws itself as its heading scrolls in — CSS only, where
-   the browser can drive an animation from scroll. Elsewhere it is simply
-   there. */
-@supports (animation-timeline: view()) {
-  .section-title::after {
-    animation: rule-draw linear both;
-    animation-timeline: view();
-    animation-range: entry 20% cover 35%;
-  }
+/* The chapter line draws itself in once, on a clock, when its heading
+   arrives (components/scroll-reveal.tsx marks the ones below the fold). It
+   used to follow the scroll position, so a heading near the bottom of the
+   screen carried half a line for as long as it stayed there. */
+.section-title[data-reveal-state="pending"]::after {
+  transform: scaleX(0);
+  opacity: 0;
 }
 
-@keyframes rule-draw {
-  from {
-    transform: scaleX(0);
-    opacity: 0;
-  }
+.section-title[data-reveal-state]::after {
+  transition:
+    transform 0.9s var(--ease) 0.15s,
+    opacity 0.9s var(--ease) 0.15s;
 }
 
 /* ------------------------------------------------------------------ *
@@ -2469,8 +2502,11 @@
   display: flex;
   overflow: hidden;
   gap: 0;
-  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  /* A short, fixed fade at each end: wide enough to soften words passing the
+     edge, narrow enough that none of them looks chopped. (12% of the strip —
+     ~100px on a laptop — read as the first and last word being cut off.) */
+  mask-image: linear-gradient(90deg, transparent, #000 2.25rem, #000 calc(100% - 2.25rem), transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 2.25rem, #000 calc(100% - 2.25rem), transparent);
 }
 
 .marquee__track {
@@ -2519,47 +2555,26 @@
   transform: translateX(130%);
 }
 
-/* Scroll reveal — armed only when JS is running. */
-[data-reveal] {
+/* Scroll reveal (components/scroll-reveal.tsx).
+ *
+ * Nothing is hidden by CSS. What is on screen when the page opens is simply
+ * there — whole, at full strength. Only cards still below the fold once the
+ * page has loaded are marked pending by the script, and each fades up once,
+ * on a clock, when it arrives.
+ *
+ * It used to be driven by scroll position instead (animation-timeline:
+ * view()), over the first 55% of a card's own height: a tall card at the
+ * bottom of the screen sat half-transparent for as long as it stayed there,
+ * and every page opened with its lower cards washed out, as if cut off.
+ */
+[data-reveal][data-reveal-state] {
   transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
   transition-delay: var(--reveal-delay, 0ms);
 }
 
-html[data-js] [data-reveal] {
+[data-reveal][data-reveal-state="pending"] {
   opacity: 0;
   transform: translateY(16px);
-}
-
-html[data-js] [data-reveal][data-revealed="true"] {
-  opacity: 1;
-  transform: none;
-}
-
-/*
- * Where the browser can drive an animation from an element's own position in
- * the viewport, it does the reveal instead of the script. The difference is
- * the first paint: the script path hides everything until hydration, so the
- * largest heading or image on screen stayed invisible for as long as the
- * JavaScript took — Lighthouse measured that as the page's LCP. Here anything
- * already on screen at load is simply shown, and only what scrolls in later
- * fades up.
- */
-@supports (animation-timeline: view()) {
-  html[data-js] [data-reveal] {
-    opacity: 1;
-    transform: none;
-    transition: none;
-    animation: reveal-up linear both;
-    animation-timeline: view();
-    animation-range: entry 0% entry 55%;
-  }
-}
-
-@keyframes reveal-up {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -3693,10 +3708,10 @@ html:not([data-mood]) .mood-line > [data-line="night"] {
     scroll-behavior: auto;
   }
 
-  html[data-js] [data-reveal] {
+  [data-reveal][data-reveal-state] {
     opacity: 1;
     transform: none;
-    animation: none !important;
+    transition: none;
   }
 
   .rotator__item {

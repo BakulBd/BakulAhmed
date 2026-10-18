@@ -1,5 +1,5 @@
 import { getPosts } from "@/lib/blog";
-import { about, blog, contactDetails, nav, profile, projects, site, socials } from "@/lib/content";
+import { about, blog, contactDetails, nav, profile, projects, recognitions, site, socials } from "@/lib/content";
 import { abs } from "@/lib/seo";
 
 // Built once, like every other page.
@@ -15,9 +15,11 @@ export function GET() {
   const plain = (s: string) => s.replace(/\*\*(.+?)\*\*/g, "$1");
   const email = contactDetails.find((c) => c.label === "Email")?.value;
   const body = [
-    `# ${site.name}`,
+    `# ${site.name} — ${site.title}`,
     "",
     `> ${site.description}`,
+    "",
+    `Canonical site: ${abs("/")}. Last updated ${site.updated}. Based in ${profile.location}; ${profile.status.toLowerCase()}.`,
     "",
     ...about.paragraphs.map(plain).flatMap((p) => [p, ""]),
     "## Pages",
@@ -30,6 +32,16 @@ export function GET() {
     ...projects.map(
       (p) => `- [${p.name}](${p.demo ?? p.repo ?? abs("/portfolio")}): ${p.summary} Stack: ${p.stack.join(", ")}.`,
     ),
+    "",
+    "## Awards & recognition",
+    "",
+    "Each entry links to the issuer's own page, which is the source of truth.",
+    "",
+    ...recognitions.map((r) => {
+      const facts = r.facts.map((f) => `${f.label}: ${f.value}`).join("; ");
+      const doc = r.document ? ` Local copy: [${r.document.label}](${abs(r.document.href)}).` : "";
+      return `- [${r.title}](${r.verifyUrl}) (${r.kind === "award" ? "award" : "gallery listing, not an award"}, ${r.issuer}, ${r.date}): ${r.summary} ${facts}.${doc}`;
+    }),
     "",
     `## ${blog.title}`,
     "",

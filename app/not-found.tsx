@@ -25,7 +25,7 @@ export default function NotFound() {
             <li key={item.href}>
               <Link
                 href={item.href}
-                className="tile shine shine--hover inline-flex min-h-[2.25rem] items-center gap-2 px-4 py-2.5 text-[0.85rem] text-soft transition-colors duration-300 hover:text-accent"
+                className="tile spotlight shine shine--hover inline-flex min-h-[2.25rem] items-center gap-2 px-4 py-2.5 text-[0.85rem] text-soft transition-colors duration-300 hover:text-accent"
               >
                 {item.label}
                 <ArrowUpRight width={14} height={14} />

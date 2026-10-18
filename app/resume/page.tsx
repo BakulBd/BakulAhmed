@@ -2,7 +2,8 @@ import Card from "@/components/card";
 import { ArrowUpRight, Award as AwardIcon, Calendar, Download } from "@/components/icons";
 import { PageHeading, SectionHeading } from "@/components/page-heading";
 import { breadcrumbNode, JsonLd, pageMetadata, PERSON_ID, webPageNode } from "@/lib/seo";
-import { awards, education, experience, profile, skills, type TimelineEntry } from "@/lib/content";
+import { formatDate } from "@/lib/blog-shared";
+import { awards, education, experience, profile, recognitions, skills, type TimelineEntry } from "@/lib/content";
 
 export const metadata = pageMetadata({
   // Search results show the title, so it carries what the page is about.
@@ -130,8 +131,32 @@ export default function ResumePage() {
             <span id="awards-heading">Certifications &amp; Awards</span>
           </SectionHeading>
         </div>
+        {/* Recognition first — the newest, and each one can be checked: the
+            title opens the issuer's page, stretched over the whole card. */}
+        <ul className="mt-7 grid gap-4 sm:grid-cols-2">
+          {recognitions.map((item) => (
+            <li key={item.id} className="tile spotlight shine shine--hover group p-5">
+              <p className="eyebrow font-mono tracking-[0.08em]">
+                <time dateTime={item.date}>{formatDate(item.date)}</time> ·{" "}
+                {item.kind === "award" ? "Award" : "Gallery listing"}
+              </p>
+              <h3 className="mt-2 text-[1rem] font-semibold text-fg">
+                <a href={item.verifyUrl} target="_blank" rel="noopener" className="recog__link">
+                  {item.title}
+                  <span className="sr-only"> — {item.verifyLabel} (opens in a new tab)</span>
+                </a>
+              </h3>
+              <p className="mt-1 text-[0.85rem] text-accent">{item.issuer}</p>
+              <p className="mt-2 text-[0.85rem] leading-[1.7] text-muted">{item.summary}</p>
+              <p className="mt-3 inline-flex items-center gap-1.5 text-[0.8rem] text-soft transition-colors group-hover:text-accent">
+                {item.kind === "award" ? `Certificate no. ${item.facts[0].value} — verify` : "View the listing"}
+                <ArrowUpRight width={12} height={12} />
+              </p>
+            </li>
+          ))}
+        </ul>
         {/* An odd last award takes the full row, so the grid closes square. */}
-        <ul className="mt-7 grid gap-4 sm:grid-cols-2 sm:[&>li:last-child:nth-child(odd)]:col-span-2">
+        <ul className="mt-4 grid gap-4 sm:grid-cols-2 sm:[&>li:last-child:nth-child(odd)]:col-span-2">
           {awards.map((award) => (
             <li key={award.title} className="tile spotlight shine shine--hover p-5">
               <p className="eyebrow font-mono tracking-[0.08em]">{award.year}</p>
@@ -147,7 +172,7 @@ export default function ResumePage() {
           webPageNode({
             path: "/resume",
             name: `Resume — ${profile.name}`,
-            description: "Education, experience, technical skills, certifications and awards.",
+            description: "Education, experience, technical skills, certifications, awards and recognition.",
             type: "AboutPage",
             mainEntity: { "@id": PERSON_ID },
           }),

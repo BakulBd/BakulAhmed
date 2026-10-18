@@ -184,7 +184,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
 
       {/* Author */}
       <aside aria-label="About the author" className="mt-5" data-reveal>
-        <div className="tile spotlight flex flex-col gap-5 p-6 sm:flex-row sm:items-center">
+        <div className="tile spotlight shine shine--hover flex flex-col gap-5 p-6 sm:flex-row sm:items-center">
           <Image
             src={profile.image.src}
             alt={site.name}
@@ -225,7 +225,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
               <Link
                 key={label}
                 href={`/blog/${p.slug}`}
-                className={`tile group flex flex-col p-5 ${label === "Next" ? "sm:col-start-2 sm:text-right" : ""}`}
+                className={`tile spotlight shine shine--hover group flex flex-col p-5 ${label === "Next" ? "sm:col-start-2 sm:text-right" : ""}`}
               >
                 <span className="eyebrow">{label === "Next" ? "Next →" : "← Previous"}</span>
                 <span className="mt-2 text-[0.95rem] font-semibold leading-snug text-fg transition-colors group-hover:text-accent">

@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
-import { awards, blog, contactDetails, profile, site, skills, socials, versions } from "./content";
+import { awards, blog, contactDetails, profile, recognitions, site, skills, socials, versions } from "./content";
+
+/** Awards conferred on the site itself — judged, not listings. */
+const siteAwards = recognitions
+  .filter((r) => r.kind === "award")
+  .map((r) => `${r.title} — ${r.issuer} (${r.date}, certificate ${r.facts.find((f) => /certificate/i.test(f.label))?.value ?? "n/a"})`);
 
 export const feedLink = {
   "application/rss+xml": [{ url: "/feed.xml", title: `${blog.title} — ${site.name}` }],
+  // The site in Markdown, for language models and agents (app/llms.txt).
+  "text/markdown": [{ url: "/llms.txt", title: `${site.name} — llms.txt` }],
 };
 
 /** Absolute URL on this site, from a path. */
@@ -135,6 +142,8 @@ export const personNode = {
   ],
   knowsAbout: [
     "Software Engineering",
+    "AI-Assisted Programming",
+    "Developer Comprehension of AI-Generated Code",
     "Full-Stack Web Development",
     "Artificial Intelligence",
     "Machine Learning",
@@ -142,12 +151,12 @@ export const personNode = {
     "Real-time Multiplayer Networking",
     "Data Structures and Algorithms",
   ],
-  award: awards.map((a) => `${a.title} — ${a.org}`),
+  award: [...siteAwards, ...awards.map((a) => `${a.title} — ${a.org}`)],
   // What he does, as an occupation with its skills — the shape Google's
   // profile and people features read, rather than a bare job title.
   hasOccupation: {
     "@type": "Occupation",
-    name: "Full-Stack Developer",
+    name: "Software Engineer",
     description: profile.intro,
     occupationLocation: { "@type": "City", name: "Dhaka" },
     skills: skills.flatMap((g) => g.items).join(", "),
@@ -167,6 +176,16 @@ export const websiteNode = {
   description: site.description,
   publisher: { "@id": PERSON_ID },
   author: { "@id": PERSON_ID },
+  // A WebSite is a CreativeWork, and the design award was given to the site.
+  award: siteAwards,
+  // Where independent sources say so — the issuer pages that verify each one.
+  subjectOf: recognitions.map((r) => ({
+    "@type": "WebPage",
+    name: `${r.title} — ${r.issuer}`,
+    url: r.verifyUrl,
+    datePublished: r.date,
+    publisher: { "@type": "Organization", name: r.issuer, url: r.issuerUrl },
+  })),
 } as const;
 
 /**

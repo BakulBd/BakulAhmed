@@ -186,6 +186,41 @@ const browser = await chromium.launch({ executablePath: EXE });
   await ctx.close();
 }
 
+/* ---- the bottom of the window never cuts the home page's opening blocks ----
+ * The opening screen (app/polish.css) is sized so the fold falls in a gap:
+ * between blocks, never through the hero, the figures or the stack strip.
+ * Its bands hard-code the header's height and the content's, so a change to
+ * either would quietly bring the cut-in-half strip back — this catches it. */
+{
+  const sizes = [
+    [1920, 1080], [1920, 932], [1600, 900], [1536, 864], [1440, 900],
+    [1366, 768], [1280, 800], [1280, 720], [1180, 820], [1120, 900],
+  ];
+  let checked = 0;
+  for (const [w, h] of sizes) {
+    const page = await browser.newPage({ viewport: { width: w, height: h } });
+    await page.goto(BASE + "/", { waitUntil: "networkidle" });
+    const cuts = await page.evaluate(() => {
+      const vh = innerHeight;
+      const blocks = [
+        ["hero", '[aria-labelledby="intro-heading"]'],
+        ["figures", ".first-screen__stats"],
+        ["stack strip", ".first-screen__strip"],
+      ];
+      return blocks
+        .map(([name, sel]) => {
+          const b = document.querySelector(sel)?.getBoundingClientRect();
+          return b && b.top < vh - 1 && b.bottom > vh + 1 ? `${name} (${Math.round(b.top)}-${Math.round(b.bottom)})` : null;
+        })
+        .filter(Boolean);
+    });
+    checked++;
+    ok(cuts.length === 0, `fold ${w}x${h}: the bottom of the window cuts the ${cuts.join(", ")}`);
+    await page.close();
+  }
+  console.log(`fold: ${checked} desktop sizes, opening blocks whole or below the fold`);
+}
+
 /* ---- frame rate, idle, on a desktop and a throttled phone ---- */
 {
   for (const [label, viewport, throttle] of [

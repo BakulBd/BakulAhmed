@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Chevron, Download, iconMap, type IconName } from "./icons";
 import PhotoSwiper from "./photo-swiper";
 import { contactDetails, profile, socials } from "@/lib/content";
@@ -12,14 +12,40 @@ import { contactDetails, profile, socials } from "@/lib/content";
  */
 export default function IdentityRail() {
   const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLElement>(null);
+
+  // A sticky card taller than the window can never show its own bottom: on a
+  // 1366x768 laptop the profiles and the CV button sat 19px below the screen
+  // for as long as the page scrolled (67px at 1280x720). So the card sticks
+  // at whatever offset leaves its bottom in view — 24px from the top when it
+  // fits, a negative offset when it does not, which lets it scroll up until
+  // its end arrives and only then hold still.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const GAP = 24;
+    const place = () => {
+      const top = Math.min(GAP, window.innerHeight - el.offsetHeight - GAP);
+      el.style.setProperty("--rail-top", `${top}px`);
+    };
+    place();
+    const observer = new ResizeObserver(place);
+    observer.observe(el);
+    window.addEventListener("resize", place);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", place);
+    };
+  }, []);
 
   return (
     <aside
+      ref={ref}
       aria-label="Profile"
-      className="panel shine shine--panel h-fit p-5 sm:p-6 lg:sticky lg:top-6 min-w-0"
+      className="panel shine shine--panel h-fit p-5 sm:p-6 lg:sticky lg:top-[var(--rail-top,1.5rem)] min-w-0"
     >
       <div className="flex items-center gap-4 max-[340px]:gap-3 lg:flex-col lg:gap-0">
-        <div className="shine relative w-20 shrink-0 rounded-2xl max-[340px]:w-14 [@media(max-height:500px)]:w-14 lg:w-full">
+        <div className="rail__photo shine relative w-20 shrink-0 rounded-2xl max-[340px]:w-14 [@media(max-height:500px)]:w-14 lg:w-full">
           <PhotoSwiper photos={profile.photos} className="aspect-square w-full" />
         </div>
 
@@ -55,7 +81,7 @@ export default function IdentityRail() {
             const body = (
               <>
                 <span className="icon-chip size-10">
-                  <Icon width={16} height={16} />
+                  <Icon width={16} height={16} data-icon={item.icon} />
                 </span>
                 <span className="min-w-0">
                   <span className="eyebrow block">{item.label}</span>
@@ -68,7 +94,7 @@ export default function IdentityRail() {
                 {"href" in item && item.href ? (
                   <a
                     href={item.href}
-                    className="flex min-w-0 items-center gap-3.5 transition-colors duration-300 hover:text-accent"
+                    className="icon-link flex min-w-0 items-center gap-3.5 transition-colors duration-300 hover:text-accent"
                   >
                     {body}
                   </a>
@@ -91,9 +117,9 @@ export default function IdentityRail() {
                   <a
                     href={social.href}
                     {...(social.href.startsWith("http") ? { target: "_blank", rel: "me noreferrer noopener" } : {})}
-                    className="inline-flex size-9 items-center justify-center rounded-xl text-muted transition-colors duration-300 hover:bg-panel-hover hover:text-accent"
+                    className="social-link inline-flex size-9 items-center justify-center rounded-xl text-muted hover:bg-panel-hover hover:text-accent"
                   >
-                    <Icon width={17} height={17} />
+                    <Icon width={17} height={17} data-icon={social.icon} />
                     <span className="sr-only">{social.label}</span>
                   </a>
                 </li>

@@ -38,11 +38,22 @@ export default function ContactPage() {
             const inner = (
               <>
                 <span className="icon-chip">
-                  <Icon />
+                  <Icon data-icon={item.icon} />
                 </span>
                 <span className="min-w-0">
                   <span className="eyebrow block">{item.label}</span>
-                  <span className="mt-1 block text-[0.9rem] leading-snug text-soft [overflow-wrap:anywhere]">{item.value}</span>
+                  <span className="mt-1 block text-[0.9rem] leading-snug text-soft [overflow-wrap:anywhere]">
+                    {/* On a narrow tile an address breaks before its "@",
+                        not in the middle of the domain. */}
+                    {item.value.includes("@") ? (
+                      <>
+                        {item.value.split("@")[0]}
+                        <wbr />@{item.value.split("@")[1]}
+                      </>
+                    ) : (
+                      item.value
+                    )}
+                  </span>
                 </span>
               </>
             );
@@ -51,7 +62,7 @@ export default function ContactPage() {
                 {"href" in item && item.href ? (
                   <a
                     href={item.href}
-                    className="flex min-w-0 flex-1 items-center gap-4 transition-colors duration-300 hover:text-accent"
+                    className="icon-link flex min-w-0 flex-1 items-center gap-4 transition-colors duration-300 hover:text-accent"
                   >
                     {inner}
                   </a>
@@ -93,9 +104,9 @@ export default function ContactPage() {
                 <a
                   href={social.href}
                   {...(social.href.startsWith("http") ? { target: "_blank", rel: "me noreferrer noopener" } : {})}
-                  className="tile shine shine--hover inline-flex items-center gap-2 px-4 py-2.5 text-[0.85rem] text-soft transition-colors duration-300 hover:text-accent"
+                  className="icon-link tile spotlight shine shine--hover inline-flex items-center gap-2 px-4 py-2.5 text-[0.85rem] text-soft transition-colors duration-300 hover:text-accent"
                 >
-                  <Icon width={16} height={16} />
+                  <Icon width={16} height={16} data-icon={social.icon} />
                   {social.label}
                 </a>
               </li>

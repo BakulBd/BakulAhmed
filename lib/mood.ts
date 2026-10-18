@@ -99,7 +99,7 @@ var S=${SKY_CORE};window.__sky=S;var now=new Date(),m=null,se=null;
 try{m=localStorage.getItem('${MOOD_KEY}');se=localStorage.getItem('${SEASON_KEY}')}catch(e){}
 var auto=!S.isMood(m);if(auto)m=S.mood(now.getHours());if(!S.isSeason(se))se=S.season(now.getMonth());
 S.paint(d,m,se,auto,now);
-document.addEventListener('DOMContentLoaded',function(){try{S.drawMoon(document.querySelector('.scene__moon'),now)}catch(e){}});
+document.addEventListener('DOMContentLoaded',function(){try{var cv=document.querySelector('.scene__moon');S.drawMoon(cv,now);if(cv)(window.__moonDrawn=window.__moonDrawn||new WeakSet()).add(cv)}catch(e){}});
 }catch(e){}})();`;
 
 export type MoonPhase = { age: number; lit: number; waxing: boolean; name: string };
@@ -120,6 +120,8 @@ export type SkyCore = {
 declare global {
   interface Window {
     __sky?: SkyCore;
+    /** Moon canvases already rendered into (components/moon-canvas.tsx). */
+    __moonDrawn?: WeakSet<HTMLCanvasElement>;
   }
 }
 

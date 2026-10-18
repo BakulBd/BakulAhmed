@@ -1,8 +1,8 @@
 # Bakul Ahmed — Portfolio
 
-A personal portfolio for **Bakul Ahmed**, Computer Science Engineer & Technology
-Builder. Glass panels — a sticky identity rail and a tabbed content panel — float
-over a living sky that keeps real time: the sun tracks the visitor's clock, the
+A personal portfolio for **Bakul Ahmed**, Software Engineer & AI Researcher. Glass
+panels — a sticky identity rail and a tabbed content panel — float over a living
+sky that keeps real time: the sun tracks the visitor's clock, the
 moon shows tonight's actual phase, the land wears the season, and the whole scene
 can be re-lit four ways.
 
@@ -32,7 +32,8 @@ touched to add a project, a role, a service, a post or a link.
 | `nav` | The five tabs |
 | `about` / `services` | About page prose and "What I'm Doing" cards |
 | `education` / `experience` / `skills` | Resume page |
-| `projects` | Portfolio grid (category drives the filter chips) |
+| `projects` | Portfolio grid (category drives the filter chips); the first is featured on the home page |
+| `recognitions` | Awards & Recognition on the home page, the resume, JSON-LD, `llms.txt` and the agent tools |
 | `blog` | Blog page heading and SEO description (posts themselves live in `content/blog`) |
 | `contact` | Contact page heading |
 | `versions` | Links to the Classic and Digital portfolios |
@@ -112,6 +113,53 @@ redeploy and is per-instance, and it reads `x-forwarded-for`, so a self-hosted d
 needs a reverse proxy that sets it — otherwise every visitor shares one bucket. Put a
 real limiter in front if it ever matters.
 
+## Awards & recognition
+
+Entries live in `recognitions` in `lib/content.ts`, and the rule is that each
+one can be checked:
+
+The home page shows them as a section after *Featured*, and as two **achievement
+badges** beside the hero's buttons that jump to it: the icon in the hour's accent,
+the title in the page's own white and issuer and date beneath — and only a touch of
+gold to be noticed by: a fine gold rim, and a band of light that crosses the badge
+once as the page settles and again on hover (none under reduced motion). On
+short laptop windows (≤ 780px tall, 1120–1535px wide) the badges keep to one line
+so the hero still fits. The resume lists them first under *Certifications & Awards*.
+
+- `verifyUrl` is the issuer's own page. The card's title is a link stretched over
+  the whole card, so clicking anywhere opens it (one link per card, with a raised
+  second link for the local document).
+- `kind` keeps the wording honest: `"award"` was judged and conferred;
+  `"listing"` is inclusion in a curated gallery and is labelled *Website
+  gallery listing — not a judged award* everywhere, including JSON-LD (only
+  awards go into `award`) and `llms.txt`.
+- **Guru of the Day** (Web Guru Awards, 14 Oct 2026, certificate no. 14102026):
+  the certificate is served from `public/recognition/` as a PDF, with a 45 KB WebP
+  preview. The issuer's certificate page may ask visitors to sign in to see
+  the full record, which is why the local copy is linked too.
+- **Featured on BestCSS** (12 Oct 2026, Portfolio gallery): the preview is the
+  gallery's own screenshot of the site, saved locally because the CSP allows
+  images from this origin only.
+
+## Agents
+
+Lighthouse 13.3+ has an **Agentic Browsing** category. The site passes it:
+
+- **`/llms.txt`** — the site in Markdown (H1, links, recognition with
+  verification URLs), generated from `lib/content.ts`, and linked from every
+  page's `<head>` as `text/markdown`.
+- **WebMCP, declarative** — the contact form is a tool
+  (`toolname="send_message_to_bakul"`, with `toolparamtitle`/
+  `toolparamdescription` on each field; types in `webmcp.d.ts`). The submit
+  handler reads `FormData` rather than React state, so values an agent sets
+  directly are sent, and answers an agent-invoked submit through
+  `respondWith`. No `toolautosubmit`: the visitor confirms.
+- **WebMCP, imperative** — `components/agent-tools.tsx` registers
+  `get_profile`, `list_projects`, `list_recognition` (read-only) and
+  `open_page` through `navigator.modelContext`, only where the browser has it.
+- No `ai-catalog.json`: its entry types (agent cards, MCP servers, skills)
+  describe services this site does not offer, so that audit is not applicable.
+
 ## Blog
 
 Posts are Markdown files in [`content/blog`](content/blog); the filename is the URL
@@ -154,8 +202,9 @@ draft: false               # optional — drafts show in `npm run dev` only
   sky-geometry checks that keep the sun and moon inside their strip at every
   position the live clock can give them, and 1,625 checks on the sky clock itself.
 - `npm run visual` — needs a dev server. Real layout and real pixels: the
-  celestial body across 9 viewports x 4 moods, 13 widths x 5 routes for
-  overflow and touch targets, image loading, and idle frame rate on a desktop
+  celestial body across 9 viewports x 4 moods, 13 widths x 6 routes for
+  overflow and touch targets, image loading, that the bottom of the window never
+  cuts the home page's opening blocks at 10 desktop sizes, and idle frame rate on a desktop
   and a 6x-throttled phone. The two agree independently — both put the tightest
   celestial clearance at dusk, 768px, 4px.
 
@@ -311,7 +360,9 @@ warmth collects at the horizon**.
   rendered moon → horizon glow → high cirrus → two drifting cumulus decks → the
   air in front of the sun or moon → seasonal hills → the city in three planes,
   with mist lying between the far one and the rest → rooftop light. All CSS/SVG
-  masks, no image payload, parallaxed on scroll.
+  masks, no image payload. No scroll parallax: it slid the city, its lit windows
+  and the fireflies down out of frame as you read, so the landscape now holds
+  still like a horizon, and scrolling costs the scene nothing.
 - **The city is Dhaka's.** [`scripts/skyline.mjs`](scripts/skyline.mjs) draws it
   (seeded, so it never changes unless the script does) and writes the shapes to
   `app/scene-art.css`: a dense hazy far plane; a mid plane of rooftop water tanks
@@ -339,8 +390,17 @@ warmth collects at the horizon**.
 - **One canvas, the whole living sky** (`components/constellation.tsx`), on one
   `requestAnimationFrame`: a still field of background stars twinkling in three
   temperatures (a few bright ones with diffraction spikes), the drifting
-  constellation, an occasional shooting star on a dark enough night, birds crossing
-  in loose V's by day, whatever the season drops, and fireflies.
+  constellation, shooting stars on a dark enough night, birds crossing in loose V's
+  by day, whatever the season drops, and fireflies.
+- **Shooting stars are frequent, and no two are alike.** One every 5–14 s on a dark
+  night, the rate the sky has always had, but each varies: some quick and faint,
+  most as bright as ever, a few long and brilliant, and never retracing the last
+  one's patch of sky. **Fireballs** come on their own clock, about every one to two
+  minutes (the first within about a minute of arriving). One glides almost level
+  through the open sky above the panels, where it can be seen whole: white-hot at
+  the head, a faint green of burning metal behind it, cooling to amber, inside a
+  soft glow. It flares near the end and breaks into fragments that carry on and
+  fall. Meteors burn in our own air, so they may cross the moon; stars may not.
 - **High resolution.** The canvas is backed at the device pixel ratio (capped at 2),
   and every glow — star, firefly, snowflake, meteor head — is a sprite pre-rendered
   at that ratio and drawn 1:1. The old `shadowBlur` dots smeared on dense screens and
@@ -350,8 +410,8 @@ warmth collects at the horizon**.
   seconds of faint glow, some double-flashing; lime-gold, which is the colour real
   ones are. They wander with a smoothed random turn and bob as they go, and nearer
   ones are larger and brighter. Full at night, a third at dusk, none by day.
-  They live **among the buildings** — street level up to the rooftops, moving
-  with the skyline's parallax — where they used to drift at half the screen's
+  They live **among the buildings** — street level up to the rooftops — where
+  they used to drift at half the screen's
   height and read as stars. Each flash is a short upward swoop (the "J" real
   ones fly) and throws a faint bloom into the air around it, additively, so two
   crossing flashes brighten each other. **The season sets how many**: all of
@@ -361,12 +421,82 @@ warmth collects at the horizon**.
   stars, the drifting constellation and shooting stars are kept above the
   landscape's highest point (hills 21.1vh, far masts 6vh + 122px) — they used to
   land on rooftops — and stars dim towards it, through the thicker air low over
-  a city.
+  a city. **Nor do they cross the moon**: stars and the drifting constellation keep
+  clear of the sun or moon's disc (and a little of its glow), whose position is
+  read in idle time every two seconds — never inside a frame, where a layout read
+  forced a full layout per sample while the page settled.
+- **Real stars among the drifting ones** (`lib/sky-stars.ts`). **Polaris** is in
+  every night sky, as it is from Dhaka, where it stands about 24° up and never sets:
+  a steady star, larger than its neighbours, at the end of the **Little Dipper**'s
+  handle. Beside it sits the season's constellation — **Orion** in winter (orange
+  Betelgeuse, blue-white Rigel), **Leo** in spring, **Scorpius** in summer (red
+  Antares), the **Great Square of Pegasus** in autumn — from the stars' real
+  relative positions, in their real colours. At rest each figure is just its
+  stars, as in the real sky; its outline appears as the pointer comes near (an
+  always-visible outline read as a rectangle drawn over the sky). They are fitted to the open sky the
+  screen has: the margins either side of the page where those are at least
+  130/140px wide, and otherwise Polaris alone, in the band above the panels just
+  past the wordmark, so phones have the North Star too.
+- **The drifting constellation draws threads, not a mesh.** Each star links only
+  to its nearest neighbour within 130px. A nearest-neighbour graph cannot close a
+  loop, so the net forms short branching chains, like a star chart's, instead of
+  the triangles every-pair-in-range made (measured: 36.5 closed triangles a frame
+  before, 0.3 after — a link fading out as its replacement fades in). Links ease in
+  slowly and out quickly as the drift changes who is nearest, and are drawn
+  fainter than before, so the sky stays open. Pointer links are unchanged.
+- **The sky answers.** Point at (or tap) a named star and its name appears on a
+  small chip for a moment. Click or tap the open night sky and a shooting star
+  leaves from that point (one every two seconds at most; never from a click on the
+  page itself — panels, links, buttons, a selection). A moving pointer stirs the
+  air: falling leaves, petals and snow nearby swirl aside and tumble, then settle.
+  All of it is decorative and inert under reduced motion.
+- **Rarer sights, every few minutes of a night.** A **satellite** — a steady point
+  that does not twinkle — glides in a straight line across the stars, and about a
+  third of them catch the sun on a panel and flare for a moment. A **plane**, high
+  and far, crosses the open band above the page with its red and green wing lights
+  and a double-flashing white strobe (at dusk too).
+- **City light.** After dark the air over the city is lit from below: a low, warm
+  band behind the buildings and in front of the hills, beneath the night's own blue
+  glow. It is what separates the far skyline from the near one at night. Literal
+  colours, only faded — a change of light never repaints it.
+- **The glass catches the hour.** Every panel's top edge carries a 1px line of the
+  light the rooftops take (`--rim-color`, stepped): rose at dawn, warm at noon, fire
+  at dusk, silver under the moon. A warm city-light "bounce" at the panels' foot
+  was built and measured out: as a blurred inset shadow it cost a sixth of a frame at
+  the 95th percentile of a change of light, as a gradient far more. The line alone
+  measured free. (Warm undersides for night clouds were also considered and not
+  built: night clouds are 8% opaque, so the effect would not show, and making them
+  stronger would hide stars.)
+- **Lighter where it should be, and nowhere else.** With Data Saver on, or on a
+  genuinely weak device (≤ 2 GB memory or ≤ 2 cores), the sky draws 60% of its
+  particles. Every ordinary laptop and phone gets the whole sky. With
+  `prefers-reduced-transparency`, panels and tiles turn solid.
+- **The moon cannot come back blank.** The head script renders it once and records
+  the canvas it drew into; `components/moon-canvas.tsx` renders into any canvas
+  it never saw (one React re-created after a hot reload, say). It deliberately does
+  nothing while the document is still loading: the head script is about to draw
+  into that same element, and drawing it twice cost 230ms on a slow phone.
 - **Depth.** Snow, leaves and petals each carry a depth that sets size, speed and
   brightness together, which is what makes snow read as falling through space. Leaves
   and petals tumble — turned by their spin, squashed by the cosine of their flip — and
   each season has a second colour: gold leaves among the rust, white petals among the
   pink. The contrast gate checks both colours against every sky.
+- **One wind.** Everything that falls reads the same air: a slow, signed drift
+  (two swells that never quite repeat) and a gust about once a minute that sweeps
+  across the screen as a wave, leading side first. Nearer particles are pushed
+  further, sway widens in a gust and leaves tumble faster while it blows. Each
+  particle used to sway on its own sine, so the air had no weather; measured over a
+  minute of autumn, the share of leaf motion they now make *together* went from
+  1.6% to 40% (the rest is still each one's own flutter). Seasonal strength: leaves
+  carry most, summer's rising motes least.
+- **Birds flap, then glide**: a burst of three to six beats, wings held out for one
+  to two seconds with a gentle sink, then beating again, each bird out of step.
+  A flock has a distance (nearer is larger and faster), a tail wind speeds it a
+  little, and now and then a single bird crosses alone.
+- **Near snow is out of focus.** Flakes closest to the eye are drawn as larger,
+  softer discs and the farthest a touch dimmer, so a snowfall has depth rather than
+  one plane of dots. **Petals have their notch** — the cut at a cherry petal's tip —
+  and leaves large enough to show it a midrib that runs on as the stalk.
 - **Real time, not frames.** Motion is scaled by elapsed time, so a 120Hz phone does
   not run the sky at double speed.
 - **Seasons ride the same canvas.** Snow, leaves, petals and rising summer heat are a
@@ -383,6 +513,12 @@ warmth collects at the horizon**.
   mixes between them **in oklch**: mixing toward a neutral ink instead turned spring's
   pink into grey mush. `npm run contrast` gates this — it fails if any of the sixteen
   mood×season pairs drops below 1.5 against its own sky.
+- **By day the deep colour is the rim, not the particle.** Drawn alone, the deep
+  variant made daytime snow, petals and summer pollen read as dark specks — ash and
+  dust rather than snow and blossom. The canvas now draws them pale (the season's
+  light colour) inside a soft rim of the deep one, so they look like what they are
+  and still show against bright cloud. Autumn leaves stay dark: that is how a leaf
+  reads against the sky. The gated colours are unchanged.
 - **Dawn and midnight used to look identical**, for two compounding reasons.
   The accents were the same two hues swapped — dawn's accent sat **3deg** from
   night's accent-2, and dawn's accent-2 **8deg** from night's accent — and the
@@ -556,7 +692,8 @@ Every animation is built from scratch — no animation library ships to the brow
 | `.btn-shine` (globals.css) | A light sweep that crosses primary buttons on hover and focus. |
 | `components/card.tsx` | The panel surface every inner-page section sits on, carrying the shine ring, spotlight and reveal in one place. |
 | `components/role-rotator.tsx` | One calm crossfade per role. The server renders exactly the first frame — one role — where it used to render all five joined and collapse on hydration, the home page's only layout shift. Screen readers get the full list once. |
-| `components/constellation.tsx` | Sparse particle field on a canvas, density scaled to viewport area, paused while the tab is hidden. |
+| `components/constellation.tsx` | Sparse particle field on a canvas, density scaled to viewport area, paused while the tab is hidden. With a mouse over open sky, the nearest constellation stars link to the pointer and signals run out along the links — a small neural net that wakes where you look. Off for touch and under reduced motion. |
+| `.recog` (recognition.css) | The certificate is set down at an angle and straightens as you reach for it, a light crossing the paper; the listing's browser frame does the same. |
 | `components/counter.tsx` | Counts each statistic up the first time it scrolls into view. |
 | `components/spotlight.tsx` | One delegated pointer listener writes `--mx/--my` onto the hovered card, so cards stay server-rendered. |
 | `components/route-transition.tsx` | Re-keys on navigation so panel content settles in on each tab change — but not on the first load, where fading the page in from opacity 0 delayed LCP. One animation on the wrapper only — staggering the first child made it fade twice. |
@@ -705,8 +842,14 @@ Check them after deploying with the
 
 Layout is audited by script across 13 widths (320 → 2560) on every route, checking for
 horizontal scroll, elements escaping the viewport, and short touch targets. The content
-measure is 1200px, widening to 1340px above 1536px so large displays get more content
-rather than more gutter.
+measure is 1200px, widening to 1340px above 1536px and 1440px above 1800px, so large
+displays get more content rather than more gutter.
+
+The sticky profile card is taller than a short laptop screen (it lost 19px at
+1366×768 and 67px at 1280×720, profiles and CV button included). Below 860px of
+height its portrait shrinks to 72%, and `identity-rail.tsx` sets the sticky offset
+to whatever keeps the card's bottom on screen — negative when it still does not
+fit, so the card scrolls until its end arrives and then holds.
 
 ## Production
 
@@ -857,16 +1000,23 @@ across 13 widths.
 
 ## Lighthouse
 
-Mobile profile (simulated slow 4G, 4x CPU) against the production build:
+Lighthouse 13.5, mobile profile (simulated slow 4G, 4x CPU) against the
+production build, October 2026:
 
-| Route | Performance | Accessibility | Best practices | SEO |
-| --- | --- | --- | --- | --- |
-| `/` | 93–95 | 100 | 100 | 100 |
-| `/resume`, `/contact` | 94–95 | 100 | 100 | 100 |
-| `/blog`, `/portfolio` | 94–95 | 100 | 100 | 100 |
-| `/blog/<post>` | 92–95 | 100 | 100 | 100 |
+| Route | Performance | Accessibility | Best practices | SEO | Agentic browsing |
+| --- | --- | --- | --- | --- | --- |
+| `/` | 77–97 (desktop 99–100) | 100 | 100 | 100 | 100 |
+| `/resume`, `/contact`, `/portfolio` | 92–96 (desktop 99–100) | 100 | 100 | 100 | 100 |
+| `/blog` | 92–94 (desktop 99–100) | 100 | 100 | 100 | 100 |
+| `/blog/<post>` | 84–91 (desktop 100) | 100 | 100 | 100 | 100 |
 
-CLS is 0 everywhere. Above-the-fold images use `preload` + `fetchPriority="high"`
+Mobile performance on this machine is noisy: the same build swings by 10+ points
+between runs (the LCP lands in one of two bands, 2.5s or 3.2s), so single runs
+mean little. Measured side by side against the build before each change, in
+alternating runs of 7–9, every change landed within that noise; none was slower.
+
+CLS is 0 everywhere except `/blog` on desktop (0.014 — the same in the code
+before this round; well under the 0.1 threshold). Above-the-fold images use `preload` + `fetchPriority="high"`
 (Next 16 deprecated `priority`, which no longer emits the hint), and SVG art skips
 the image optimiser. `experimental.inlineCss` was measured and made no difference,
 so it is off.

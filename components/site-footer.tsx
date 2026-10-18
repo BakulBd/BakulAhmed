@@ -68,9 +68,9 @@ export default function SiteFooter() {
                   <a
                     href={social.href}
                     {...(social.href.startsWith("http") ? { target: "_blank", rel: "me noreferrer noopener" } : {})}
-                    className="inline-flex size-10 items-center justify-center rounded-xl text-muted transition-colors duration-300 hover:bg-panel-soft hover:text-accent"
+                    className="social-link inline-flex size-10 items-center justify-center rounded-xl text-muted hover:bg-panel-soft hover:text-accent"
                   >
-                    <Icon width={18} height={18} />
+                    <Icon width={18} height={18} data-icon={social.icon} />
                     <span className="sr-only">{social.label}</span>
                   </a>
                 </li>

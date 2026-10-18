@@ -1,6 +1,4 @@
-"use client";
-
-import { useEffect, useRef } from "react";
+import MoonCanvas from "./moon-canvas";
 
 /** One full set of scene layers, painted for a single mood. */
 function Layers() {
@@ -17,7 +15,7 @@ function Layers() {
         {/* Tonight's moon, rendered into this canvas by the head script
             (window.__sky.drawMoon) before hydration. React leaves its pixels
             alone; the size here must match what the renderer expects. */}
-        <canvas className="scene__moon" width={224} height={224} />
+        <MoonCanvas />
       </div>
       <div className="scene__glow" />
       <div className="scene__cirrus" />
@@ -27,6 +25,9 @@ function Layers() {
       <div className="scene__flare" />
       {/* Hills behind the city carry the season: green, gold, rust, snow. */}
       <div className="scene__hills" />
+      {/* After dark, the city lights the air above it: a low, warm band in
+          front of the hills and behind the buildings (app/polish.css). */}
+      <div className="scene__citylight" />
       {/* The city in three planes, with mist lying between the far one and
           the rest (shapes: scripts/skyline.mjs). */}
       <div className="scene__ridge scene__ridge--far" />
@@ -51,36 +52,13 @@ function Layers() {
  * not a full-viewport gradient whose centre is animated.
  */
 export default function Scene() {
-  const ref = useRef<HTMLDivElement>(null);
-  // Slow parallax: the sky barely moves, the foreground moves most. Skipped
-  // when motion is reduced or the pointer is coarse (phones pay for this).
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (window.matchMedia("(pointer: coarse)").matches) return;
-
-    let frame = 0;
-    const onScroll = () => {
-      if (frame) return;
-      frame = requestAnimationFrame(() => {
-        frame = 0;
-        const y = window.scrollY;
-        el.style.setProperty("--p1", `${y * 0.02}px`);
-        el.style.setProperty("--p2", `${y * 0.06}px`);
-        el.style.setProperty("--p3", `${y * 0.12}px`);
-      });
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (frame) cancelAnimationFrame(frame);
-    };
-  }, []);
-
+  // No scroll parallax. It used to slide the city — buildings, lit windows,
+  // fireflies — down and out of the frame as you read, and on a long page
+  // carried the sky past its own edge. The landscape now stays where it is,
+  // like a horizon does, and scrolling costs the scene nothing. (The layers
+  // still read --p1/--p2/--p3, which default to 0, should it ever return.)
   return (
-    <div ref={ref} aria-hidden="true" className="scene">
+    <div aria-hidden="true" className="scene">
       <Layers />
     </div>
   );

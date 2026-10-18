@@ -34,14 +34,41 @@ export default function ContactForm({ to }: { to: string }) {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!ready || sending) return;
+    // Read the fields from the form, not only from state: an AI agent filling
+    // it through WebMCP sets the values directly, and React never hears of it.
+    const form = new FormData(event.currentTarget);
+    const field = (key: string, fallback: string) => {
+      const value = form.get(key);
+      return typeof value === "string" && value.trim() !== "" ? value : fallback;
+    };
+    const payload = {
+      name: field("name", name),
+      email: field("email", email),
+      message: field("message", message),
+      company: field("company", company),
+    };
+    // An agent-invoked submit (WebMCP) waits for an answer it can read.
+    const native = event.nativeEvent as SubmitEvent & {
+      agentInvoked?: boolean;
+      respondWith?: (result: Promise<string>) => void;
+    };
+    let answer: (text: string) => void = () => {};
+    if (native.agentInvoked && typeof native.respondWith === "function") {
+      native.respondWith(new Promise<string>((resolve) => (answer = resolve)));
+    }
+
+    if (!payload.name.trim() || !payload.email.trim() || !payload.message.trim()) {
+      answer("Not sent: name, email and message are all required.");
+      return;
+    }
+    if (sending) return answer("Not sent: a message is already being sent.");
     setStatus({ kind: "sending" });
 
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, message, company }),
+        body: JSON.stringify(payload),
       });
       const data = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
 
@@ -50,20 +77,20 @@ export default function ContactForm({ to }: { to: string }) {
         setName("");
         setEmail("");
         setMessage("");
+        answer("Sent. Bakul usually replies within a day or two.");
         return;
       }
 
-      setStatus({
-        kind: "error",
-        message: data?.error ?? "Could not send the message right now.",
-        fallback: response.status === 503,
-      });
+      const failure = data?.error ?? "Could not send the message right now.";
+      setStatus({ kind: "error", message: failure, fallback: response.status === 503 });
+      answer(`Not sent: ${failure} You can email ${to} instead.`);
     } catch {
       setStatus({
         kind: "error",
         message: "Network problem — the message did not send.",
         fallback: true,
       });
+      answer(`Not sent: network problem. You can email ${to} instead.`);
     }
   };
 
@@ -105,7 +132,12 @@ export default function ContactForm({ to }: { to: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6">
+    <form
+      onSubmit={handleSubmit}
+      className="mt-6"
+      toolname="send_message_to_bakul"
+      tooldescription="Send a message to Bakul Ahmed (software engineer and AI researcher) about internships, research or collaboration. Delivered to his inbox by email; he usually replies within a day or two."
+    >
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="name" className="eyebrow mb-2 block">
@@ -122,6 +154,8 @@ export default function ContactForm({ to }: { to: string }) {
             disabled={sending}
             value={name}
             onChange={(e) => setName(e.target.value)}
+            toolparamtitle="Name"
+            toolparamdescription="The sender's full name (2-100 characters)."
             className="field"
             placeholder="Your name"
           />
@@ -142,6 +176,8 @@ export default function ContactForm({ to }: { to: string }) {
             disabled={sending}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            toolparamtitle="Email"
+            toolparamdescription="The sender's email address, where the reply will go."
             className="field"
             placeholder="you@example.com"
           />
@@ -173,6 +209,8 @@ export default function ContactForm({ to }: { to: string }) {
           disabled={sending}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          toolparamtitle="Message"
+          toolparamdescription="The message itself, 10-4000 characters."
           className="field"
           placeholder="What would you like to build?"
         />
@@ -189,6 +227,8 @@ export default function ContactForm({ to }: { to: string }) {
           autoComplete="off"
           value={company}
           onChange={(e) => setCompany(e.target.value)}
+          toolparamtitle="Spam trap"
+          toolparamdescription="Spam trap for bots. Always leave this empty, or the message is discarded."
         />
       </div>
 

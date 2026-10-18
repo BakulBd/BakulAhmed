@@ -3,69 +3,75 @@
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
+/** The longest a reveal can take: the 600ms fade plus the largest stagger. */
+const SETTLE = 1200;
+
 /**
- * Reveals any element carrying [data-reveal] as it enters the viewport, so
- * sections stay server-rendered and ship no JavaScript of their own.
+ * Fades [data-reveal] cards up as they arrive — but only cards that were
+ * below the fold when the page opened. Anything already on screen is never
+ * touched: it paints whole on the first frame, so nothing on arrival looks
+ * half-there or cut off, and the largest heading on screen is never held back
+ * for the script (which Lighthouse would count against LCP).
  *
- * Keyed on the pathname: a client-side navigation replaces the page's DOM,
- * and those new nodes start hidden by CSS. Without re-observing them after
- * each route change the incoming page stays blank until a full reload.
+ * The fade is on a clock, not the scroll position: once a card starts to come
+ * into view it finishes its 600ms and is done, rather than sitting at half
+ * opacity for as long as it stays at the bottom edge of the screen.
+ *
+ * Keyed on the pathname: a client-side navigation brings a new page's cards,
+ * and they are sorted into on-screen and below-the-fold afresh. Cards added
+ * later (one a filter brings back) are not marked at all, so never hidden.
  */
 export default function ScrollReveal() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const targets = document.querySelectorAll<HTMLElement>("[data-reveal]");
+    if (typeof IntersectionObserver === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const reveal = (el: HTMLElement) => {
-      el.dataset.revealed = "true";
+    const timers = new Set<number>();
+    const show = (el: HTMLElement) => {
+      el.dataset.revealState = "in";
+      // Once it has settled, step out of the way: the reveal's transition
+      // must not linger on the card's own hover lift and lean.
+      const t = window.setTimeout(() => {
+        timers.delete(t);
+        if (el.dataset.revealState === "in") delete el.dataset.revealState;
+      }, SETTLE);
+      timers.add(t);
     };
-
-    if (
-      typeof IntersectionObserver === "undefined" ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      targets.forEach(reveal);
-      return;
-    }
 
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
-          reveal(entry.target as HTMLElement);
           observer.unobserve(entry.target);
+          show(entry.target as HTMLElement);
         }
       },
-      { rootMargin: "0px 0px -10% 0px", threshold: 0.1 },
+      // The moment any of it enters the window. A negative bottom margin
+      // (it was -6%) left whatever sits at the very end of a page — where the
+      // scroll cannot bring it further up — hidden for good on a short
+      // landscape phone.
+      { rootMargin: "0px", threshold: 0 },
     );
 
-    targets.forEach((el) => observer.observe(el));
-
-    // Content that arrives after the page — a card brought back by a filter —
-    // is a new node the observer has never seen, and it would stay hidden.
-    // Watch the page content for it. Only on this path: where the browser
-    // drives the reveal from scroll, CSS already shows new nodes.
-    const main = document.getElementById("main");
-    const added =
-      main && !CSS.supports("animation-timeline: view()")
-        ? new MutationObserver((records) => {
-            for (const record of records) {
-              record.addedNodes.forEach((node) => {
-                if (!(node instanceof HTMLElement)) return;
-                if (node.matches("[data-reveal]:not([data-revealed])")) observer.observe(node);
-                node
-                  .querySelectorAll<HTMLElement>("[data-reveal]:not([data-revealed])")
-                  .forEach((el) => observer.observe(el));
-              });
-            }
-          })
-        : null;
-    if (main) added?.observe(main, { childList: true, subtree: true });
+    const fold = window.innerHeight;
+    // Cards fade up; section headings draw their chapter line.
+    document.querySelectorAll<HTMLElement>("[data-reveal], .section-title").forEach((el) => {
+      // Already on screen (even by a pixel), or hidden — leave it alone.
+      const box = el.getBoundingClientRect();
+      if (box.top < fold || (box.width === 0 && box.height === 0)) return;
+      el.dataset.revealState = "pending";
+      observer.observe(el);
+    });
 
     return () => {
       observer.disconnect();
-      added?.disconnect();
+      timers.forEach((t) => window.clearTimeout(t));
+      // A page left mid-reveal must not leave anything hidden behind.
+      document.querySelectorAll<HTMLElement>("[data-reveal-state]").forEach((el) => {
+        delete el.dataset.revealState;
+      });
     };
   }, [pathname]);
 

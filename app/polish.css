@@ -1,0 +1,323 @@
+/* ------------------------------------------------------------------ *
+ * Polish: the home page's opening screen, and icons that answer back.
+ * ------------------------------------------------------------------ */
+
+/* ---- The opening screen (app/page.tsx) ----
+ *
+ * Hero, figures and the stack strip are one opening composition. On desktop
+ * the block is as tall as the window, with the figures and the strip held
+ * to its foot, so the first screen ends on the strip — whole, 16px above
+ * the bottom edge — and the next section starts below the fold. Before,
+ * the bottom of the window fell wherever the content happened to reach: on
+ * a 1920x930 browser, straight through the strip.
+ *
+ * The hero starts 177px down at this width (header 94 + tab row 53 + the
+ * panel's top padding 30). Where the window is too short for all of it
+ * (a 768px laptop) the block simply runs on, as before.
+ */
+.hero-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.25rem;
+}
+
+/* Stacked, the buttons keep their full-width row on a phone. */
+.hero-actions > .btn-row {
+  align-self: stretch;
+}
+
+@media (min-width: 1120px) {
+  /* The recognition pills ride beside the buttons where there is room —
+     the height that buys is what lets the strip join the first screen. */
+  .hero-actions {
+    flex-flow: row wrap;
+    align-items: center;
+    gap: 0.875rem 1.25rem;
+  }
+
+  .hero-actions > .btn-row {
+    align-self: auto;
+  }
+}
+
+/* Laptop-height windows: the same composition, a little tighter. */
+@media (min-width: 1120px) and (max-height: 1000px) {
+  .first-screen > section {
+    margin-bottom: 1.5rem;
+  }
+
+  .first-screen .focus {
+    margin-top: 1.25rem;
+  }
+
+  .first-screen .focus__row {
+    padding-block: 0.45rem;
+  }
+
+  .first-screen .hero-actions {
+    margin-top: 1.5rem;
+  }
+
+  .first-screen__stats > li {
+    padding-block: 0.8rem;
+  }
+
+  .first-screen__strip {
+    margin-top: 0.75rem;
+    padding-block: 0.8rem;
+  }
+}
+
+@media (min-width: 1120px) and (min-height: 721px) and (max-height: 1250px) {
+  .first-screen {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100svh - 177px - 16px);
+  }
+
+  .first-screen__stats {
+    margin-top: auto;
+  }
+}
+
+/*
+ * Shorter windows, where all of it cannot fit: choose the cleanest fold.
+ * Measured content (after the tightening above): the strip 48px with 12px
+ * above it; up to 1535px wide the achievement badges wrap under the buttons
+ * and the hero runs 580px + 24px with 93px of figures, from 1536px they sit
+ * beside the buttons and it runs 520px + 24px with 82px of figures.
+ *
+ *   middle band: the figures end 8px above the fold; the strip lies wholly
+ *                below it, the first thing you scroll to;
+ *   low band:    the hero fills the window; the figures start just below.
+ *
+ * scripts/visual.mjs checks the fold at ten desktop sizes, so a change to
+ * any of these heights fails loudly rather than bringing the cut back.
+ */
+@media (min-width: 1120px) and (max-width: 1535px) and (min-height: 882px) and (max-height: 949px),
+  (min-width: 1536px) and (min-height: 811px) and (max-height: 878px) {
+  .first-screen {
+    min-height: calc(100svh - 177px + 52px);
+  }
+}
+
+@media (min-width: 1120px) and (max-width: 1535px) and (min-height: 721px) and (max-height: 881px) {
+  .first-screen {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100svh - 177px + 161px);
+  }
+
+  .first-screen__stats {
+    margin-top: auto;
+  }
+}
+
+/* Short laptop windows (1280x720, 1366x768) at widths where the badges
+   would wrap: they keep to one line — icon and title — so they sit
+   beside the buttons and the hero still fits. Issuer and date are one click
+   away, in the Awards section the badge points to. */
+@media (min-width: 1120px) and (max-width: 1535px) and (max-height: 780px) {
+  .achievement__meta {
+    display: none;
+  }
+
+  .achievement {
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding-right: 0.75rem;
+  }
+
+  .achievement__title {
+    font-size: 0.78rem;
+  }
+
+
+  .achievements {
+    gap: 0.45rem;
+  }
+
+  .hero-actions {
+    column-gap: 0.875rem;
+  }
+}
+
+@media (min-width: 1536px) and (min-height: 721px) and (max-height: 810px) {
+  .first-screen {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100svh - 177px + 150px);
+  }
+
+  .first-screen__stats {
+    margin-top: auto;
+  }
+}
+
+/* ---- City light ----
+ * The air over a city at night is lit from below: a low, warm band just
+ * above the rooftops, in front of the hills. Added beneath the night's own
+ * blue horizon glow, not instead of it. Painted once (literal colours, no
+ * mood tokens) and only faded, so a change of light never repaints it.
+ */
+.scene > .scene__citylight {
+  inset: auto -5% 0;
+  height: 34vh;
+  background: linear-gradient(to top, rgb(255 168 98 / 0.2), rgb(255 150 92 / 0.08) 40%, transparent 100%);
+  opacity: 0;
+  transition: opacity 2.4s var(--ease) 0.8s;
+  pointer-events: none;
+}
+
+[data-mood="dusk"] .scene > .scene__citylight {
+  opacity: 0.45;
+}
+
+[data-mood="night"] .scene > .scene__citylight {
+  opacity: 1;
+}
+
+@media print {
+  .scene__citylight {
+    display: none;
+  }
+}
+
+/* ---- Icons that answer back ----
+ *
+ * Each contact and profile icon has a small gesture of its own when its link
+ * is pointed at or focused: the envelope lifts, the phone rings, the pin
+ * drops, the case tips, the bars rise, the marks turn. Short, one-shot, and
+ * transform-only; none at all under reduced motion.
+ */
+@layer components {
+  .icon-link .icon-chip {
+    transition:
+      background-color 0.35s var(--ease),
+      border-color 0.35s var(--ease),
+      box-shadow 0.35s var(--ease),
+      transform 0.35s var(--ease);
+  }
+
+  .icon-link:hover .icon-chip,
+  .icon-link:focus-visible .icon-chip {
+    transform: translateY(-1px);
+    background-color: color-mix(in oklab, var(--accent) 16%, rgb(var(--tile-rgb)));
+    border-color: color-mix(in oklab, var(--accent) 40%, var(--border-soft));
+    box-shadow: 0 8px 20px -10px color-mix(in oklab, var(--accent) 70%, transparent);
+  }
+
+  /* Profile links: a lift and the accent, with the icon's own gesture. */
+  .social-link {
+    transition:
+      color 0.3s var(--ease),
+      background-color 0.3s var(--ease),
+      transform 0.3s var(--ease);
+  }
+
+  .social-link:hover,
+  .social-link:focus-visible {
+    transform: translateY(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :is(.icon-link, .social-link):is(:hover, :focus-visible) [data-icon] {
+    animation: var(--icon-gesture, icon-pop) 0.65s var(--ease) both;
+  }
+
+  [data-icon="mail"] {
+    --icon-gesture: icon-lift;
+  }
+
+  [data-icon="phone"] {
+    --icon-gesture: icon-ring;
+  }
+
+  [data-icon="pin"] {
+    --icon-gesture: icon-drop;
+  }
+
+  [data-icon="briefcase"] {
+    --icon-gesture: icon-tip;
+  }
+
+  [data-icon="github"],
+  [data-icon="linkedin"] {
+    --icon-gesture: icon-turn;
+  }
+
+  [data-icon="codeforces"] {
+    --icon-gesture: icon-rise;
+  }
+}
+
+@keyframes icon-pop {
+  40% {
+    scale: 1.18;
+  }
+}
+
+@keyframes icon-lift {
+  35% {
+    translate: 0 -3px;
+    rotate: -8deg;
+  }
+  70% {
+    translate: 0 0;
+    rotate: 4deg;
+  }
+}
+
+@keyframes icon-ring {
+  15%,
+  45% {
+    rotate: -14deg;
+  }
+  30%,
+  60% {
+    rotate: 14deg;
+  }
+  80% {
+    rotate: 0deg;
+  }
+}
+
+@keyframes icon-drop {
+  30% {
+    translate: 0 -4px;
+  }
+  55% {
+    translate: 0 1px;
+    scale: 1.06 0.94;
+  }
+  75% {
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+@keyframes icon-tip {
+  40% {
+    rotate: -10deg;
+    translate: 0 -1px;
+  }
+}
+
+@keyframes icon-turn {
+  50% {
+    rotate: -12deg;
+    scale: 1.14;
+  }
+}
+
+@keyframes icon-rise {
+  0% {
+    scale: 1 0.6;
+    transform-origin: 50% 100%;
+  }
+  60% {
+    scale: 1 1.12;
+  }
+}

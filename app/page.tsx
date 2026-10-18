@@ -8,6 +8,7 @@ import RoleRotator from "@/components/role-rotator";
 import { SectionHeading } from "@/components/page-heading";
 import PostCard from "@/components/post-card";
 import ProjectArt from "@/components/project-art";
+import RecognitionSection, { RecognitionStrip } from "@/components/recognition";
 import { getPosts } from "@/lib/blog";
 import { JsonLd, personNode, pageMetadata, WEBSITE_ID } from "@/lib/seo";
 import {
@@ -39,6 +40,10 @@ export default function HomePage() {
   return (
     <>
       {/* ---- Hero. Identity lives in the rail, so this leads with the work. ---- */}
+      {/* The opening screen: hero, figures and the stack strip, sized on
+          desktop so the bottom of the window falls in a gap between blocks —
+          never through the middle of one (see .first-screen). */}
+      <div className="first-screen">
       <section aria-labelledby="intro-heading" className="mb-8" data-reveal>
         <p className="eyebrow flex flex-wrap items-center gap-x-2.5 gap-y-2 leading-normal">
           <span aria-hidden="true" className="relative flex size-2">
@@ -87,19 +92,24 @@ export default function HomePage() {
           ))}
         </ul>
 
-        <div className="btn-row mt-7">
-          <a href={profile.cv} download className="btn btn--primary btn-shine">
-            <Download width={16} height={16} className="btn__icon--down" />
-            Download CV
-          </a>
-          <Link href="/portfolio" className="btn btn--ghost">
-            See the work
-            <ArrowUpRight width={15} height={15} className="btn__icon--out" />
-          </Link>
+        {/* The buttons, and the recognition beside them where there is room
+            (below them where there is not). */}
+        <div className="hero-actions mt-7">
+          <div className="btn-row">
+            <a href={profile.cv} download className="btn btn--primary btn-shine">
+              <Download width={16} height={16} className="btn__icon--down" />
+              Download CV
+            </a>
+            <Link href="/portfolio" className="btn btn--ghost">
+              See the work
+              <ArrowUpRight width={15} height={15} className="btn__icon--out" />
+            </Link>
+          </div>
+          <RecognitionStrip />
         </div>
       </section>
 
-      <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <ul className="first-screen__stats grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {stats.map((stat, i) => (
           <li
             key={stat.label}
@@ -117,7 +127,7 @@ export default function HomePage() {
 
       {/* ---- Tech marquee ---- */}
       <div
-        className="tile mt-4 overflow-hidden py-4"
+        className="first-screen__strip tile shine shine--panel mt-4 overflow-hidden py-4"
         aria-hidden="true"
         data-reveal
       >
@@ -133,6 +143,7 @@ export default function HomePage() {
             </div>
           ))}
         </div>
+      </div>
       </div>
 
       {/* ---- About ---- */}
@@ -217,6 +228,9 @@ export default function HomePage() {
           </div>
         </article>
       </section>
+
+      {/* ---- Awards & recognition ---- */}
+      <RecognitionSection />
 
       {/* ---- Latest writing ---- */}
       {latest.length > 0 && (

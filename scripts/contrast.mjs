@@ -251,7 +251,7 @@ const skyRoot = block('[data-theme="dark"],');
 // Breakpoints, mirroring the media queries in globals.css.
 const tiny = block("@media (width < 300px) {");
 const atWidth = (w) => ({
-  shell: w >= 1536 ? 1340 : 1200,
+  shell: w >= 1800 ? 1440 : w >= 1536 ? 1340 : 1200,
   pad: w >= 1120 ? 40 : w >= 640 ? 32 : 20,
   scale: w >= 768 ? 1 : w >= 380 ? 0.72 : w < 300 ? Number(varOf(tiny, "sun-scale")) : Number(varOf(skyRoot, "sun-scale")),
   band: w >= 768 ? 50 : len(skyRoot, "sky-band"),

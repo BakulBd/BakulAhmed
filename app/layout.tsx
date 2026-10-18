@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import AgentTools from "@/components/agent-tools";
 import CodeCopy from "@/components/code-copy";
 import Constellation from "@/components/constellation";
 import IdentityRail from "@/components/identity-rail";
@@ -35,6 +36,8 @@ export const metadata: Metadata = {
   keywords: [
     site.name,
     "Bakul Ahmed portfolio",
+    "Software Engineer",
+    "AI Researcher",
     "Computer Science Engineer",
     "Full-stack developer Bangladesh",
     "AI ML developer Dhaka",
@@ -127,7 +130,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <MoodSwitch />
             </header>
 
-            <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
+            <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-6 xl:grid-cols-[340px_minmax(0,1fr)] min-[1800px]:grid-cols-[360px_minmax(0,1fr)]">
               <IdentityRail />
 
               <div className="panel shine shine--panel relative min-w-0">
@@ -144,6 +147,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <ScrollReveal />
           <Spotlight />
           <CodeCopy />
+          <AgentTools />
           {/* The person and the site, on every page. Pages add their own nodes
               (ProfilePage on the home route, BlogPosting on a post). */}
           <JsonLd graph={[personNode, websiteNode]} />
