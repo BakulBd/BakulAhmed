@@ -25,6 +25,7 @@ const ART: Record<string, (p: ArtProps) => React.JSX.Element> = {
   "/work/web-game.svg": WebGame,
   "/work/epistemic-guard.svg": EpistemicGuard,
   "/work/green-guardian.svg": GreenGuardian,
+  "/work/hostinger-kvm4-malaysia.svg": KvmBenchmark,
 };
 
 export function hasArt(src: string) {
@@ -392,6 +393,147 @@ function GreenGuardian({ uid }: ArtProps) {
       </text>
 
       <Title uid={uid} text="GREEN GUARDIAN" right="TENSORFLOW.JS · GEMINI" />
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Hostinger KVM 4 Malaysia Benchmark — hardware & network telemetry
+ * ------------------------------------------------------------------ */
+function KvmBenchmark({ uid }: ArtProps) {
+  const ioBars = [
+    { label: "4K (114k IOPS)", v: 0.32 },
+    { label: "64K (5.67 GB/s)", v: 0.92 },
+    { label: "512K (5.76 GB/s)", v: 0.98 },
+    { label: "1M (5.65 GB/s)", v: 0.94 },
+  ];
+  return (
+    <>
+      <Ground uid={uid} glowAt="50% 48%" />
+
+      {/* Central EPYC Compute Hub */}
+      <g className="art__spin anim" style={{ transformOrigin: "800px 450px", animationDuration: "18s" }}>
+        <circle cx="800" cy="450" r="140" className="art__ring" />
+        <circle cx="800" cy="310" r="7" className="art__a" />
+        <circle cx="940" cy="450" r="5" className="art__b" />
+        <circle cx="660" cy="450" r="5" className="art__b" />
+      </g>
+      <circle cx="800" cy="450" r="115" className="art__ring art__ring--soft" />
+
+      {/* Central Server Die: AMD EPYC */}
+      <g className="art__float anim" style={{ transformOrigin: "800px 450px" }}>
+        <rect x="710" y="360" width="180" height="180" rx="20" className="art__panel art__panel--b" />
+        <rect x="730" y="380" width="140" height="140" rx="14" className="art__solid" />
+        <path d="M745 420h110M745 450h110M745 480h110" className="art__edge" />
+        <circle cx="800" cy="450" r="18" className="art__face-top" />
+        <text x="800" y="442" textAnchor="middle" className="art__mono art__a" fontSize="16" letterSpacing="2" fontWeight="700">
+          EPYC
+        </text>
+        <text x="800" y="468" textAnchor="middle" className="art__mono art__b-text" fontSize="13" letterSpacing="1">
+          ZEN 4
+        </text>
+        {/* Core LED indicators */}
+        <circle cx="738" cy="388" r="4" className="art__a art__pulse anim" />
+        <circle cx="862" cy="388" r="4" className="art__a art__pulse anim" style={{ animationDelay: "0.2s" }} />
+        <circle cx="738" cy="512" r="4" className="art__a art__pulse anim" style={{ animationDelay: "0.4s" }} />
+        <circle cx="862" cy="512" r="4" className="art__a art__pulse anim" style={{ animationDelay: "0.6s" }} />
+      </g>
+
+      {/* Connection Links: Center to Left, Right, and Bottom */}
+      <g>
+        <path d="M710 450 L530 450" className="art__link" />
+        <path d="M890 450 L1070 450" className="art__link" />
+        <path d="M800 540 L800 660" className="art__link" />
+
+        <path d="M710 450 L530 450" pathLength={100} className="art__packet anim" style={{ animationDuration: "2s" }} />
+        <path d="M890 450 L1070 450" pathLength={100} className="art__packet anim" style={{ animationDuration: "1.6s", animationDelay: "-0.5s" }} />
+        <path d="M800 540 L800 660" pathLength={100} className="art__packet anim" style={{ animationDuration: "2.2s", animationDelay: "-1s" }} />
+      </g>
+
+      {/* Left Pod: NVMe Storage IOPS & Throughput */}
+      <g>
+        <rect x="140" y="270" width="390" height="360" rx="18" className="art__panel" />
+        <text x="175" y="322" className="art__mono art__faint" fontSize="22" letterSpacing="3">
+          NVME STORAGE I/O
+        </text>
+        <text x="175" y="380" className="art__mono art__ink" fontSize="48" fontWeight="800">
+          5.76 <tspan fontSize="26" className="art__a">GB/s</tspan>
+        </text>
+        <rect x="175" y="400" width="180" height="30" rx="6" className="art__hilite" />
+        <text x="188" y="421" className="art__mono art__a" fontSize="15" fontWeight="700">
+          114,100 4K IOPS
+        </text>
+
+        {/* Dynamic I/O Bars */}
+        <g transform="translate(175, 455)">
+          {ioBars.map((b, i) => (
+            <g key={i} transform={`translate(0, ${i * 38})`}>
+              <text x="0" y="14" className="art__mono art__faint" fontSize="14">
+                {b.label}
+              </text>
+              <rect x="0" y="22" width="320" height="8" rx="4" className="art__ink" fillOpacity="0.1" />
+              <rect
+                x="0"
+                y="22"
+                width={320 * b.v}
+                height="8"
+                rx="4"
+                fill={`url(#rule-${uid})`}
+                className="art__grow anim"
+                style={{ animationDelay: `${i * 0.15}s` }}
+              />
+            </g>
+          ))}
+        </g>
+      </g>
+
+      {/* Right Pod: Singapore Direct Peering */}
+      <g>
+        <rect x="1070" y="270" width="390" height="360" rx="18" className="art__panel art__panel--b" />
+        <text x="1105" y="322" className="art__mono art__faint" fontSize="22" letterSpacing="3">
+          REGIONAL ROUTE
+        </text>
+        <text x="1105" y="380" className="art__mono art__a" fontSize="48" fontWeight="800">
+          6.08 <tspan fontSize="26" className="art__b-text">ms</tspan>
+        </text>
+        <rect x="1105" y="400" width="220" height="30" rx="6" className="art__hilite" />
+        <text x="1118" y="421" className="art__mono art__b-text" fontSize="15" fontWeight="700">
+          SINGAPORE LEASEWEB 10G
+        </text>
+
+        {/* Telemetry info */}
+        <g transform="translate(1105, 465)" className="art__mono" fontSize="16">
+          <text y="20" className="art__faint">TRANSIT: <tspan className="art__ink">AS47583 HOSTINGER</tspan></text>
+          <text y="50" className="art__faint">IPv4 SPEED: <tspan className="art__a">1.01 Gbps</tspan></text>
+          <text y="80" className="art__faint">IPv6 SPEED: <tspan className="art__b-text">996 Mbps</tspan></text>
+          <text y="110" className="art__faint">JOHOR STRAIT: <tspan className="art__a">METRO-LAN HOP</tspan></text>
+        </g>
+      </g>
+
+      {/* Bottom Center Bar: CPU Steal & Stability */}
+      <g>
+        <rect x="580" y="660" width="440" height="150" rx="16" className="art__panel" />
+        <text x="610" y="700" className="art__mono art__faint" fontSize="18" letterSpacing="3">
+          CPU STEAL (MPSTAT 60s)
+        </text>
+        <text x="610" y="748" className="art__mono art__a" fontSize="36" fontWeight="800">
+          2.05% <tspan fontSize="20" className="art__faint">STEAL</tspan>
+        </text>
+        <text x="760" y="748" className="art__mono art__b-text" fontSize="36" fontWeight="800">
+          0.00% <tspan fontSize="20" className="art__faint">I/O WAIT</tspan>
+        </text>
+        <text x="610" y="785" className="art__mono art__faint" fontSize="14">
+          4 vCPU ZEN 4 CORES · 93.10% DEDICATED CAPACITY
+        </text>
+      </g>
+
+      <Title
+        uid={uid}
+        text="HOSTINGER KVM 4 VPS"
+        right="MALAYSIA // AS47583"
+        footer="AMD EPYC 9354P · 16 GB DDR5 · 200 GB NVME"
+        footerRight="6.08MS TO SINGAPORE"
+      />
     </>
   );
 }

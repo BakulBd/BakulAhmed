@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" width="1000" height="640" role="img" aria-label="fio Disk Speed Tests on Hostinger KVM 4 Malaysia">
+  <defs>
+    <linearGradient id="dRead" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00c6ff"/>
+      <stop offset="100%" stop-color="#0072ff"/>
+    </linearGradient>
+    <linearGradient id="dWrite" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#75e7bf"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <linearGradient id="cardDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#151e2b"/>
+      <stop offset="100%" stop-color="#0c121a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1000" height="640" fill="#080c14" rx="14"/>
+  <rect x="2" y="2" width="996" height="636" rx="12" fill="none" stroke="#e8eaf2" stroke-opacity="0.08" stroke-width="2"/>
+
+  <!-- Header -->
+  <g transform="translate(40, 36)">
+    <text font-family="ui-monospace,monospace" font-size="14" letter-spacing="3" fill="#00e5ff" font-weight="700">FIO 50/50 MIXED READ/WRITE BENCHMARK</text>
+    <text y="28" font-family="system-ui,-apple-system,sans-serif" font-size="22" font-weight="800" fill="#ffffff">Enterprise NVMe Performance (/dev/sda1 · 193.9 GiB)</text>
+    
+    <!-- Legend -->
+    <rect x="680" y="8" width="16" height="16" rx="4" fill="url(#dRead)"/>
+    <text x="704" y="22" font-family="system-ui,-apple-system,sans-serif" font-size="15" fill="#e8eaf2" font-weight="600">Read (50%)</text>
+    
+    <rect x="820" y="8" width="16" height="16" rx="4" fill="url(#dWrite)"/>
+    <text x="844" y="22" font-family="system-ui,-apple-system,sans-serif" font-size="15" fill="#e8eaf2" font-weight="600">Write (50%)</text>
+  </g>
+
+  <!-- ROW 1: 4K Block Size (Random I/O) -->
+  <g transform="translate(40, 110)">
+    <rect width="920" height="110" rx="12" fill="url(#cardDark)" stroke="#a855f7" stroke-opacity="0.25"/>
+    
+    <text x="24" y="38" font-family="system-ui,-apple-system,sans-serif" font-size="22" font-weight="800" fill="#ffffff">4K Random I/O</text>
+    <rect x="24" y="52" width="170" height="26" rx="5" fill="#a855f7" fill-opacity="0.2" stroke="#a855f7" stroke-opacity="0.4"/>
+    <text x="34" y="70" font-family="ui-monospace,monospace" font-size="13" font-weight="800" fill="#c084fc">114,100 TOTAL IOPS</text>
+    <text x="24" y="98" font-family="ui-monospace,monospace" font-size="12" fill="#e8eaf2" fill-opacity="0.5">Database Queries &amp; WAL Flushes</text>
+
+    <!-- Bars -->
+    <g transform="translate(230, 24)">
+      <text x="0" y="14" font-family="ui-monospace,monospace" font-size="13" fill="#00c6ff">Read: 233.46 MB/s (56.9k IOPS)</text>
+      <rect x="0" y="22" width="460" height="12" rx="6" fill="#1b2535"/>
+      <rect x="0" y="22" width="180" height="12" rx="6" fill="url(#dRead)"/>
+
+      <text x="0" y="52" font-family="ui-monospace,monospace" font-size="13" fill="#75e7bf">Write: 234.08 MB/s (57.1k IOPS)</text>
+      <rect x="0" y="60" width="460" height="12" rx="6" fill="#1b2535"/>
+      <rect x="0" y="60" width="181" height="12" rx="6" fill="url(#dWrite)"/>
+    </g>
+
+    <!-- Combined Metric -->
+    <g transform="translate(720, 24)">
+      <text x="180" y="26" text-anchor="end" font-family="ui-monospace,monospace" font-size="12" fill="#e8eaf2" fill-opacity="0.5">Total Speed</text>
+      <text x="180" y="64" text-anchor="end" font-family="system-ui,-apple-system,sans-serif" font-size="30" font-weight="900" fill="#00e5ff">467.5 MB/s</text>
+    </g>
+  </g>
+
+  <!-- ROW 2: 64K Block Size -->
+  <g transform="translate(40, 235)">
+    <rect width="920" height="110" rx="12" fill="url(#cardDark)" stroke="#e8eaf2" stroke-opacity="0.08"/>
+    
+    <text x="24" y="38" font-family="system-ui,-apple-system,sans-serif" font-size="22" font-weight="800" fill="#ffffff">64K Mixed</text>
+    <rect x="24" y="52" width="160" height="26" rx="5" fill="#00e5ff" fill-opacity="0.12" stroke="#00e5ff" stroke-opacity="0.3"/>
+    <text x="34" y="70" font-family="ui-monospace,monospace" font-size="13" font-weight="800" fill="#00e5ff">86,500 TOTAL IOPS</text>
+    <text x="24" y="98" font-family="ui-monospace,monospace" font-size="12" fill="#e8eaf2" fill-opacity="0.5">Static Assets &amp; Index Lookup</text>
+
+    <!-- Bars -->
+    <g transform="translate(230, 24)">
+      <text x="0" y="14" font-family="ui-monospace,monospace" font-size="13" fill="#00c6ff">Read: 2.82 GB/s (43.1k IOPS)</text>
+      <rect x="0" y="22" width="460" height="12" rx="6" fill="#1b2535"/>
+      <rect x="0" y="22" width="418" height="12" rx="6" fill="url(#dRead)"/>
+
+      <text x="0" y="52" font-family="ui-monospace,monospace" font-size="13" fill="#75e7bf">Write: 2.84 GB/s (43.4k IOPS)</text>
+      <rect x="0" y="60" width="460" height="12" rx="6" fill="#1b2535"/>
+      <rect x="0" y="60" width="422" height="12" rx="6" fill="url(#dWrite)"/>
+    </g>
+
+    <g transform="translate(720, 24)">
+      <text x="180" y="26" text-anchor="end" font-family="ui-monospace,monospace" font-size="12" fill="#e8eaf2" fill-opacity="0.5">Total Speed</text>
+      <text x="180" y="64" text-anchor="end" font-family="system-ui,-apple-system,sans-serif" font-size="30" font-weight="900" fill="#75e7bf">5.67 GB/s</text>
+    </g>
+  </g>
+
+  <!-- ROW 3: 512K Block Size -->
+  <g transform="translate(40, 360)">
+    <rect width="920" height="110" rx="12" fill="url(#cardDark)" stroke="#e8eaf2" stroke-opacity="0.08"/>
+    
+    <text x="24" y="38" font-family="system-ui,-apple-system,sans-serif" font-size="22" font-weight="800" fill="#ffffff">512K Large I/O</text>
+    <rect x="24" y="52" width="160" height="26" rx="5" fill="#00e5ff" fill-opacity="0.12" stroke="#00e5ff" stroke-opacity="0.3"/>
+    <text x="34" y="70" font-family="ui-monospace,monospace" font-size="13" font-weight="800" fill="#00e5ff">10,900 TOTAL IOPS</text>
+    <text x="24" y="98" font-family="ui-monospace,monospace" font-size="12" fill="#e8eaf2" fill-opacity="0.5">Docker Images &amp; App Archives</text>
+
+    <!-- Bars -->
+    <g transform="translate(230, 24)">
+      <text x="0" y="14" font-family="ui-monospace,monospace" font-size="13" fill="#00c6ff">Read: 2.80 GB/s (5.3k IOPS)</text>
+      <rect x="0" y="22" width="460" height="12" rx="6" fill="#1b2535"/>
+      <rect x="0" y="22" width="415" height="12" rx="6" fill="url(#dRead)"/>
+
+      <text x="0" y="52" font-family="ui-monospace,monospace" font-size="13" fill="#75e7bf">Write: 2.95 GB/s (5.6k IOPS)</text>
+      <rect x="0" y="60" width="460" height="12" rx="6" fill="#1b2535"/>
+      <rect x="0" y="60" width="438" height="12" rx="6" fill="url(#dWrite)"/>
+    </g>
+
+    <g transform="translate(720, 24)">
+      <text x="180" y="26" text-anchor="end" font-family="ui-monospace,monospace" font-size="12" fill="#e8eaf2" fill-opacity="0.5">Total Speed</text>
+      <text x="180" y="64" text-anchor="end" font-family="system-ui,-apple-system,sans-serif" font-size="30" font-weight="900" fill="#00e5ff">5.76 GB/s</text>
+    </g>
+  </g>
+
+  <!-- ROW 4: 1M Block Size -->
+  <g transform="translate(40, 485)">
+    <rect width="920" height="110" rx="12" fill="url(#cardDark)" stroke="#e8eaf2" stroke-opacity="0.08"/>
+    
+    <text x="24" y="38" font-family="system-ui,-apple-system,sans-serif" font-size="22" font-weight="800" fill="#ffffff">1M Sequential</text>
+    <rect x="24" y="52" width="150" height="26" rx="5" fill="#00e5ff" fill-opacity="0.12" stroke="#00e5ff" stroke-opacity="0.3"/>
+    <text x="34" y="70" font-family="ui-monospace,monospace" font-size="13" font-weight="800" fill="#00e5ff">5,300 TOTAL IOPS</text>
+    <text x="24" y="98" font-family="ui-monospace,monospace" font-size="12" fill="#e8eaf2" fill-opacity="0.5">Database Dumps &amp; Backups</text>
+
+    <!-- Bars -->
+    <g transform="translate(230, 24)">
+      <text x="0" y="14" font-family="ui-monospace,monospace" font-size="13" fill="#00c6ff">Read: 2.73 GB/s (2.6k IOPS)</text>
+      <rect x="0" y="22" width="460" height="12" rx="6" fill="#1b2535"/>
+      <rect x="0" y="22" width="405" height="12" rx="6" fill="url(#dRead)"/>
+
+      <text x="0" y="52" font-family="ui-monospace,monospace" font-size="13" fill="#75e7bf">Write: 2.91 GB/s (2.7k IOPS)</text>
+      <rect x="0" y="60" width="460" height="12" rx="6" fill="#1b2535"/>
+      <rect x="0" y="60" width="432" height="12" rx="6" fill="url(#dWrite)"/>
+    </g>
+
+    <g transform="translate(720, 24)">
+      <text x="180" y="26" text-anchor="end" font-family="ui-monospace,monospace" font-size="12" fill="#e8eaf2" fill-opacity="0.5">Total Speed</text>
+      <text x="180" y="64" text-anchor="end" font-family="system-ui,-apple-system,sans-serif" font-size="30" font-weight="900" fill="#75e7bf">5.65 GB/s</text>
+    </g>
+  </g>
+
+  <!-- Footer -->
+  <text x="40" y="618" font-family="ui-monospace,monospace" font-size="13" fill="#e8eaf2" fill-opacity="0.4">fio-3.36 · direct=1 · iodepth=64 · runtime=30s · verified PCIe Gen 4 Enterprise NVMe Array</text>
+</svg>

@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" width="1000" height="640" role="img" aria-label="Global Network Latency and Throughput from Hostinger Kuala Lumpur Malaysia">
+  <defs>
+    <linearGradient id="netBar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00e5ff"/>
+      <stop offset="100%" stop-color="#75e7bf"/>
+    </linearGradient>
+    <linearGradient id="netCard" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#151e2b"/>
+      <stop offset="100%" stop-color="#0c121a"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1000" height="640" fill="#080c14" rx="14"/>
+  <rect x="2" y="2" width="996" height="636" rx="12" fill="none" stroke="#e8eaf2" stroke-opacity="0.08" stroke-width="2"/>
+
+  <!-- Header -->
+  <g transform="translate(40, 36)">
+    <text font-family="ui-monospace,monospace" font-size="14" letter-spacing="3" fill="#75e7bf" font-weight="700">IPERF3 GLOBAL NETWORK LATENCY MATRIX</text>
+    <text y="28" font-family="system-ui,-apple-system,sans-serif" font-size="22" font-weight="800" fill="#ffffff">Hostinger Kuala Lumpur (AS47583) to Global Exchanges</text>
+    <text x="920" y="28" text-anchor="end" font-family="ui-monospace,monospace" font-size="13" fill="#00e5ff" font-weight="700">PING (LOWER IS BETTER)</text>
+  </g>
+
+  <!-- DESTINATIONS -->
+  <!-- 1. Singapore (Super Highlight) -->
+  <g transform="translate(40, 95)">
+    <rect width="920" height="74" rx="10" fill="#0d242a" stroke="#00e5ff" stroke-opacity="0.5"/>
+    <circle cx="28" cy="37" r="7" fill="#00e5ff"/>
+    <text x="48" y="32" font-family="system-ui,-apple-system,sans-serif" font-size="18" font-weight="800" fill="#ffffff">Singapore, SG (Leaseweb 10G)</text>
+    <text x="48" y="54" font-family="ui-monospace,monospace" font-size="13" fill="#75e7bf" font-weight="600">Send: 1.01 Gbps · Recv: 974 Mbps (Line Rate Saturation)</text>
+
+    <!-- Bar -->
+    <rect x="430" y="30" width="340" height="14" rx="7" fill="#1b2535"/>
+    <rect x="430" y="30" width="14" height="14" rx="7" fill="#00e5ff"/>
+
+    <!-- Ping Badge -->
+    <rect x="800" y="18" width="100" height="38" rx="6" fill="#00e5ff" fill-opacity="0.2" stroke="#00e5ff" stroke-opacity="0.6"/>
+    <text x="850" y="44" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="20" font-weight="900" fill="#00e5ff">6.08 ms</text>
+  </g>
+
+  <!-- 2. London, UK -->
+  <g transform="translate(40, 180)">
+    <rect width="920" height="70" rx="10" fill="url(#netCard)" stroke="#e8eaf2" stroke-opacity="0.08"/>
+    <text x="28" y="31" font-family="system-ui,-apple-system,sans-serif" font-size="17" font-weight="700" fill="#ffffff">London, UK (Clouvider 10G)</text>
+    <text x="28" y="52" font-family="ui-monospace,monospace" font-size="13" fill="#e8eaf2" fill-opacity="0.5">IPv6 Send: 278 Mbps · Recv: 483 Mbps</text>
+
+    <rect x="430" y="28" width="340" height="14" rx="7" fill="#1b2535"/>
+    <rect x="430" y="28" width="165" height="14" rx="7" fill="url(#netBar)"/>
+
+    <text x="880" y="44" text-anchor="end" font-family="system-ui,-apple-system,sans-serif" font-size="20" font-weight="800" fill="#e8eaf2">160 ms</text>
+  </g>
+
+  <!-- 3. Amsterdam, NL -->
+  <g transform="translate(40, 260)">
+    <rect width="920" height="70" rx="10" fill="url(#netCard)" stroke="#e8eaf2" stroke-opacity="0.08"/>
+    <text x="28" y="31" font-family="system-ui,-apple-system,sans-serif" font-size="17" font-weight="700" fill="#ffffff">Amsterdam, NL (Eranium 100G)</text>
+    <text x="28" y="52" font-family="ui-monospace,monospace" font-size="13" fill="#e8eaf2" fill-opacity="0.5">IPv4 Recv: 778 Mbps · IPv6 Recv: 774 Mbps</text>
+
+    <rect x="430" y="28" width="340" height="14" rx="7" fill="#1b2535"/>
+    <rect x="430" y="28" width="169" height="14" rx="7" fill="url(#netBar)"/>
+
+    <text x="880" y="44" text-anchor="end" font-family="system-ui,-apple-system,sans-serif" font-size="20" font-weight="800" fill="#e8eaf2">164 ms</text>
+  </g>
+
+  <!-- 4. Los Angeles, US -->
+  <g transform="translate(40, 340)">
+    <rect width="920" height="70" rx="10" fill="url(#netCard)" stroke="#e8eaf2" stroke-opacity="0.08"/>
+    <text x="28" y="31" font-family="system-ui,-apple-system,sans-serif" font-size="17" font-weight="700" fill="#ffffff">Los Angeles, US (Clouvider 10G)</text>
+    <text x="28" y="52" font-family="ui-monospace,monospace" font-size="13" fill="#e8eaf2" fill-opacity="0.5">IPv6 Send: 414 Mbps · Recv: 441 Mbps</text>
+
+    <rect x="430" y="28" width="340" height="14" rx="7" fill="#1b2535"/>
+    <rect x="430" y="28" width="177" height="14" rx="7" fill="url(#netBar)"/>
+
+    <text x="880" y="44" text-anchor="end" font-family="system-ui,-apple-system,sans-serif" font-size="20" font-weight="800" fill="#e8eaf2">172 ms</text>
+  </g>
+
+  <!-- 5. Tashkent, UZ -->
+  <g transform="translate(40, 420)">
+    <rect width="920" height="70" rx="10" fill="url(#netCard)" stroke="#e8eaf2" stroke-opacity="0.08"/>
+    <text x="28" y="31" font-family="system-ui,-apple-system,sans-serif" font-size="17" font-weight="700" fill="#ffffff">Tashkent, UZ (Uztelecom 10G)</text>
+    <text x="28" y="52" font-family="ui-monospace,monospace" font-size="13" fill="#e8eaf2" fill-opacity="0.5">Central Asia · Send: 270 Mbps · Recv: 348 Mbps</text>
+
+    <rect x="430" y="28" width="340" height="14" rx="7" fill="#1b2535"/>
+    <rect x="430" y="28" width="232" height="14" rx="7" fill="url(#netBar)"/>
+
+    <text x="880" y="44" text-anchor="end" font-family="system-ui,-apple-system,sans-serif" font-size="20" font-weight="800" fill="#e8eaf2">225 ms</text>
+  </g>
+
+  <!-- 6. New York City, US -->
+  <g transform="translate(40, 500)">
+    <rect width="920" height="70" rx="10" fill="url(#netCard)" stroke="#e8eaf2" stroke-opacity="0.08"/>
+    <text x="28" y="31" font-family="system-ui,-apple-system,sans-serif" font-size="17" font-weight="700" fill="#ffffff">New York City, US (Leaseweb 10G)</text>
+    <text x="28" y="52" font-family="ui-monospace,monospace" font-size="13" fill="#e8eaf2" fill-opacity="0.5">Transatlantic Link · Send: 277 Mbps · Recv: 694 Mbps</text>
+
+    <rect x="430" y="28" width="340" height="14" rx="7" fill="#1b2535"/>
+    <rect x="430" y="28" width="254" height="14" rx="7" fill="url(#netBar)"/>
+
+    <text x="880" y="44" text-anchor="end" font-family="system-ui,-apple-system,sans-serif" font-size="20" font-weight="800" fill="#e8eaf2">246 ms</text>
+  </g>
+
+  <!-- Footer -->
+  <text x="40" y="605" font-family="ui-monospace,monospace" font-size="13" fill="#e8eaf2" fill-opacity="0.4">Tested with iperf3 dual-stream sessions · AS47583 BGP Routing · Dual-Stack IPv4/IPv6</text>
+</svg>

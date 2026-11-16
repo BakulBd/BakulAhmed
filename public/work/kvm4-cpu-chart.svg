@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" width="1000" height="640" role="img" aria-label="mpstat 60-Second CPU Steal and Stability Test on Hostinger KVM 4 Malaysia">
+  <defs>
+    <linearGradient id="cpuBar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00e5ff"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="cpuCard" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#151e2b"/>
+      <stop offset="100%" stop-color="#0c121a"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1000" height="640" fill="#080c14" rx="14"/>
+  <rect x="2" y="2" width="996" height="636" rx="12" fill="none" stroke="#e8eaf2" stroke-opacity="0.08" stroke-width="2"/>
+
+  <!-- Header -->
+  <g transform="translate(40, 36)">
+    <text font-family="ui-monospace,monospace" font-size="14" letter-spacing="3" fill="#c084fc" font-weight="700">MPSTAT 60s SUSTAINED 100% LOAD BENCHMARK</text>
+    <text y="28" font-family="system-ui,-apple-system,sans-serif" font-size="22" font-weight="800" fill="#ffffff">CPU Steal &amp; Hypervisor Stability (AMD EPYC 9354P · 4 Cores)</text>
+    
+    <rect x="740" y="6" width="180" height="30" rx="6" fill="#75e7bf" fill-opacity="0.15" stroke="#75e7bf" stroke-opacity="0.4"/>
+    <text x="830" y="26" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" font-weight="800" fill="#75e7bf">AVG STEAL: 2.05%</text>
+  </g>
+
+  <!-- Left: Core-by-core Cards -->
+  <g transform="translate(40, 100)">
+    <!-- Core 0 -->
+    <g transform="translate(0, 0)">
+      <rect width="450" height="82" rx="10" fill="url(#cpuCard)" stroke="#e8eaf2" stroke-opacity="0.08"/>
+      <text x="20" y="30" font-family="system-ui,-apple-system,sans-serif" font-size="17" font-weight="700" fill="#ffffff">vCPU Core 0</text>
+      <text x="20" y="50" font-family="ui-monospace,monospace" font-size="12" fill="#00e5ff">User: 93.14%</text>
+      <text x="135" y="50" font-family="ui-monospace,monospace" font-size="12" fill="#ff7b72">Steal: 2.03%</text>
+      <text x="240" y="50" font-family="ui-monospace,monospace" font-size="12" fill="#e8eaf2" fill-opacity="0.5">Idle: 4.78%</text>
+      
+      <rect x="20" y="60" width="410" height="8" rx="4" fill="#1e293b"/>
+      <rect x="20" y="60" width="382" height="8" rx="4" fill="url(#cpuBar)"/>
+      <rect x="402" y="60" width="8" height="8" rx="2" fill="#ff5f56"/>
+    </g>
+
+    <!-- Core 1 -->
+    <g transform="translate(0, 96)">
+      <rect width="450" height="82" rx="10" fill="url(#cpuCard)" stroke="#e8eaf2" stroke-opacity="0.08"/>
+      <text x="20" y="30" font-family="system-ui,-apple-system,sans-serif" font-size="17" font-weight="700" fill="#ffffff">vCPU Core 1</text>
+      <text x="20" y="50" font-family="ui-monospace,monospace" font-size="12" fill="#00e5ff">User: 93.07%</text>
+      <text x="135" y="50" font-family="ui-monospace,monospace" font-size="12" fill="#ff7b72">Steal: 2.06%</text>
+      <text x="240" y="50" font-family="ui-monospace,monospace" font-size="12" fill="#e8eaf2" fill-opacity="0.5">Idle: 4.80%</text>
+      
+      <rect x="20" y="60" width="410" height="8" rx="4" fill="#1e293b"/>
+      <rect x="20" y="60" width="382" height="8" rx="4" fill="url(#cpuBar)"/>
+      <rect x="402" y="60" width="8" height="8" rx="2" fill="#ff5f56"/>
+    </g>
+
+    <!-- Core 2 -->
+    <g transform="translate(0, 192)">
+      <rect width="450" height="82" rx="10" fill="url(#cpuCard)" stroke="#e8eaf2" stroke-opacity="0.08"/>
+      <text x="20" y="30" font-family="system-ui,-apple-system,sans-serif" font-size="17" font-weight="700" fill="#ffffff">vCPU Core 2</text>
+      <text x="20" y="50" font-family="ui-monospace,monospace" font-size="12" fill="#00e5ff">User: 93.12%</text>
+      <text x="135" y="50" font-family="ui-monospace,monospace" font-size="12" fill="#ff7b72">Steal: 2.05%</text>
+      <text x="240" y="50" font-family="ui-monospace,monospace" font-size="12" fill="#e8eaf2" fill-opacity="0.5">Idle: 4.78%</text>
+      
+      <rect x="20" y="60" width="410" height="8" rx="4" fill="#1e293b"/>
+      <rect x="20" y="60" width="382" height="8" rx="4" fill="url(#cpuBar)"/>
+      <rect x="402" y="60" width="8" height="8" rx="2" fill="#ff5f56"/>
+    </g>
+
+    <!-- Core 3 -->
+    <g transform="translate(0, 288)">
+      <rect width="450" height="82" rx="10" fill="url(#cpuCard)" stroke="#e8eaf2" stroke-opacity="0.08"/>
+      <text x="20" y="30" font-family="system-ui,-apple-system,sans-serif" font-size="17" font-weight="700" fill="#ffffff">vCPU Core 3</text>
+      <text x="20" y="50" font-family="ui-monospace,monospace" font-size="12" fill="#00e5ff">User: 93.08%</text>
+      <text x="135" y="50" font-family="ui-monospace,monospace" font-size="12" fill="#ff7b72">Steal: 2.05%</text>
+      <text x="240" y="50" font-family="ui-monospace,monospace" font-size="12" fill="#e8eaf2" fill-opacity="0.5">Idle: 4.80%</text>
+      
+      <rect x="20" y="60" width="410" height="8" rx="4" fill="#1e293b"/>
+      <rect x="20" y="60" width="382" height="8" rx="4" fill="url(#cpuBar)"/>
+      <rect x="402" y="60" width="8" height="8" rx="2" fill="#ff5f56"/>
+    </g>
+  </g>
+
+  <!-- Right: 3 Big Aggregate Stat Blocks -->
+  <g transform="translate(510, 100)">
+    <rect width="450" height="370" rx="12" fill="url(#cpuCard)" stroke="#e8eaf2" stroke-opacity="0.08"/>
+    
+    <text x="28" y="40" font-family="ui-monospace,monospace" font-size="13" letter-spacing="2" fill="#00e5ff" font-weight="700">AGGREGATE 60-SECOND RESULTS</text>
+
+    <!-- Stat 1 -->
+    <g transform="translate(28, 58)">
+      <text y="38" font-family="system-ui,-apple-system,sans-serif" font-size="44" font-weight="900" fill="#00e5ff">93.10%</text>
+      <text x="180" y="22" font-family="system-ui,-apple-system,sans-serif" font-size="17" font-weight="700" fill="#ffffff">User Process Execution</text>
+      <text x="180" y="42" font-family="ui-monospace,monospace" font-size="13" fill="#e8eaf2" fill-opacity="0.6">Zero throttling across all 4 cores</text>
+    </g>
+
+    <!-- Stat 2 -->
+    <g transform="translate(28, 138)">
+      <text y="38" font-family="system-ui,-apple-system,sans-serif" font-size="44" font-weight="900" fill="#75e7bf">2.05%</text>
+      <text x="180" y="22" font-family="system-ui,-apple-system,sans-serif" font-size="17" font-weight="700" fill="#ffffff">Average Hypervisor Steal</text>
+      <text x="180" y="42" font-family="ui-monospace,monospace" font-size="13" fill="#e8eaf2" fill-opacity="0.6">Minimal noisy neighbour contention</text>
+    </g>
+
+    <!-- Stat 3 -->
+    <g transform="translate(28, 218)">
+      <text y="38" font-family="system-ui,-apple-system,sans-serif" font-size="44" font-weight="900" fill="#a78bfa">0.00%</text>
+      <text x="180" y="22" font-family="system-ui,-apple-system,sans-serif" font-size="17" font-weight="700" fill="#ffffff">Disk I/O Wait Overhead</text>
+      <text x="180" y="42" font-family="ui-monospace,monospace" font-size="13" fill="#e8eaf2" fill-opacity="0.6">Kernel never stalled waiting on NVMe</text>
+    </g>
+
+    <!-- Verdict Box -->
+    <rect x="24" y="290" width="402" height="60" rx="8" fill="#0d242a" stroke="#75e7bf" stroke-opacity="0.3"/>
+    <text x="40" y="316" font-family="ui-monospace,monospace" font-size="13" font-weight="700" fill="#75e7bf">VERDICT: REAL ZEN 4 TIME SLICES</text>
+    <text x="40" y="336" font-family="system-ui,-apple-system,sans-serif" font-size="13" fill="#e8eaf2" fill-opacity="0.8">56 of 60 seconds registered &lt;1% steal under 100% pegging.</text>
+  </g>
+
+  <!-- Bottom Timeline Note -->
+  <g transform="translate(40, 490)">
+    <rect width="920" height="96" rx="10" fill="url(#cpuCard)" stroke="#e8eaf2" stroke-opacity="0.08"/>
+    <text x="24" y="32" font-family="ui-monospace,monospace" font-size="13" font-weight="700" fill="#e8eaf2" fill-opacity="0.6">SCHEDULING BEHAVIOR OBSERVATION (11:42:41 - 11:43:41 UTC):</text>
+    <text x="24" y="60" font-family="system-ui,-apple-system,sans-serif" font-size="14" fill="#e8eaf2" fill-opacity="0.85">
+      Under continuous full load, steal hovered between 0.00% and 1.50% for 56 seconds. Two brief hypervisor scheduling ticks at sec 21 &amp; 22 touched 18% &amp; 32% steal for 2 seconds, instantly recovering to 0.5% in the next tick. The node is not overcommitted.
+    </text>
+  </g>
+
+  <!-- Footer -->
+  <text x="40" y="618" font-family="ui-monospace,monospace" font-size="13" fill="#e8eaf2" fill-opacity="0.4">mpstat 1 60 · Linux 7.0.0-38-generic · Ubuntu 26.04 LTS · 4 AMD EPYC 9354P vCPUs</text>
+</svg>
